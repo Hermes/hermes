@@ -15,7 +15,7 @@ type Server struct {
 	localIP, globalIP string
 }
 
-func NewServer() Server{
+func NewServer() Server {
 	Server := Server{}
 	Server.Hostname, err := os.Hostname()
 	if err != nil {
@@ -27,9 +27,15 @@ func NewServer() Server{
 		panic(err)
 	}
 
+	Server.localIP, Server.globalIP = getIPs()
+	Server.Node = wendy.NewNode(Server.ID, Server.localIP,
+								Server.globalIP, "angelhack",
+								31337)
 
+	credentials := NewCredentials(Server.Id)
 
-	Server.Node = wendy.NewNode
+	Server.Cluster = wendy.NewCluster(node, credentials)
+	
 
 }
 

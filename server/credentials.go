@@ -7,11 +7,11 @@ import (
 	"crypto/hex"
 )
 
-type Credentials struct {
-	VaultID []byte
+type NetCredentials struct {
+	NetID []byte
 }
 
-func NewCredentials() Credentials {
+func NewCredentials() NetCredentials {
 	hostname, err := os.Hostname();
 	micro := time.Now().Nanosecond()
 
@@ -23,18 +23,19 @@ func NewCredentials() Credentials {
 	return Credentials(VauldID)
 }
 
-func (c Credentials) Valid(VaultID []byte) bool {
-	if VaultID.length == 32 {
+func (c NetCredentials) Valid(NetID []byte) bool {
+	/*if VaultID.length == 32 {
 		return true
 	}
-	return false
+	return false*/
+	return true
 }
 
-func (c Credentials) Marshal() []byte {
-	return c.VaultID
+func (c NetCredentials) Marshal() []byte {
+	return c.NetID
 }
 
-func (c Credentials) String() string {
-	return hex.EncodeToString(c.VaultID)
+func (c NetCredentials) String() string {
+	return hex.EncodeToString(c.NetID)
 }
 
