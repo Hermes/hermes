@@ -5,40 +5,30 @@ package client
 import (
 	"code.google.com/p/lzma"
 	"io"
-	"os"
+	"bytes"
 )
 
-func compress(file string) {
+func Compress(in io.Reader) io.Reader {
 
-	// Open file input reader
-	in, _ := os.Open(file)
-	defer in.Close()
-
-	// Create file output writer
-	out, _ := os.Create(file + "lz")
-	defer out.Close()
+	var out bytes.Buffer
 
 	// Creat LZMA writer
-	w := lzma.NewWriterLevel(out, 9) // Highest compression
+	w := lzma.NewWriterLevel(&out, 9) // Highest compression
 	defer w.Close()
 
 	// Reading from file as buffer and writing compressed
     buf := make([]byte, 1024)
     for {
         n, err := in.Read(buf)
-        if err != nil && err != io.EOF { panic(err) }
+        if err != nil && err != io.EOF {
+        	panic(err)
+        }
         if n == 0 { break }
         w.Write(buf[:n])
     }
+	return &out
 }
 
-func decompress(file string) io.Reader {
-
-	// Open file input reader
-	in, _ := os.Open(file)
-	defer in.Close()
-
-	// Open LZMA reader
-	r := lzma.NewReader(in)
-	return r
+func Decompress(in io.Reader) io.Reader {
+	return lzma.NewReader(in)
 }
