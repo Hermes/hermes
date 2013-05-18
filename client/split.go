@@ -1,15 +1,12 @@
-package main
+package client
 
 import (
 	"bufio"
 	"crypto/sha256"
 	"encoding/hex"
-	"fmt"
 	"io"
-	"math/rand"
 	"os"
 	"path"
-	"time"
 )
 
 func exists(path string) bool {
@@ -46,7 +43,7 @@ func write_file(content []byte, filename string) {
 	}
 }
 
-func split(file io.Reader, block_size int, filedir string) []string {
+func Split(file io.Reader, block_size int, filedir string) []string {
 	// make a buffer to keep chunks that are read
 	files := make([]string, 0)
 	buf := make([]byte, block_size)
@@ -69,32 +66,4 @@ func split(file io.Reader, block_size int, filedir string) []string {
 		files = append(files, filename)
 	}
 	return files
-}
-
-func randomString(l int) string {
-	rand.Seed(time.Now().UTC().UnixNano())
-	bytes := make([]byte, l)
-	for i := 0; i < l; i++ {
-		bytes[i] = byte(65 + rand.Intn(90-65))
-	}
-	return string(bytes)
-}
-
-func main() {
-	// open input file
-	fi, err := os.Open("server/splits.png")
-	if err != nil {
-		panic(err)
-	}
-	// close fi on exit and check for its returned error
-	defer func() {
-		if err := fi.Close(); err != nil {
-			panic(err)
-		}
-	}()
-	// make a read buffer
-	// files := split(bufio.NewReader(fi), 128)
-	for k, v := range split(fi, 128, "tmp") {
-		fmt.Printf("key=%v, value=%v\n", k, v)
-	}
 }
