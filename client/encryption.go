@@ -1,4 +1,4 @@
-package main
+package client
 
 import (
     "fmt"
@@ -41,8 +41,6 @@ func Encrypt(in io.Reader, key string) io.Reader {
     cfb := cipher.NewCFBEncrypter(c, commonIV)
     ciphertext := make([]byte, len(plaintext))
     cfb.XORKeyStream(ciphertext, plaintext)
-    fmt.Printf("%s=>%x\n", plaintext, ciphertext)
-
     return strings.NewReader(string(ciphertext))
 }
 
@@ -51,13 +49,28 @@ func Decrypt(in io.Reader, key string) io.Reader {
     buf := new(bytes.Buffer)
     buf.ReadFrom(in)
     s := buf.String()
-    fmt.Println(s)
 
+    // Load the ciphertext message you want to decrypt
+    ciphertext := []byte(s)
+ 
+    // Setup a key that will encrypt the other text.
+    h := sha256.New()
+    io.WriteString(h, key)
+    key_text := h.Sum(nil)
+ 
+    // We chose our cipher type here in this case
+    // we are using AES.
+    c, err := aes.NewCipher([]byte(key_text));
+    if err != nil {
+        fmt.Printf("Error: NewCipher(%d bytes) = %s", len(key_text), err)
+        os.Exit(-1)
+    }
+ 
+    // We use the CFBDecrypter in order to decrypt
+    // the whole stream of ciphertext using the
+    // cipher setup with c and a iv.
+    cfb := cipher.NewCFBDecrypter(c, commonIV)
+    plaintext := make([]byte, len(ciphertext))
+    cfb.XORKeyStream(plaintext, ciphertext)
     return strings.NewReader(string(plaintext))
-}
-
-func main() {
-    a := strings.NewReader("hello world yo!")
-    Encrypt(a, "password")
-    Decrypt(a, "password")
 }
