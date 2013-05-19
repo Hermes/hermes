@@ -83,7 +83,7 @@ func Split(file io.Reader, block_size int, filedir string) []string {
 	return files
 }
 
-func Join(files []string, block_size int, final string) {
+func Join(files []string, block_size int, final string) io.Reader {
 	result := make([]byte, 0)
 	for _, file := range files {
 		fi, err := os.Open(file)
@@ -104,4 +104,5 @@ func Join(files []string, block_size int, final string) {
 		}
 	}
 	write_file(result, final)
+	return open_file(final)
 }
