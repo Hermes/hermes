@@ -6,8 +6,10 @@ import (
 	"hermes/client"
 	"hermes/server"
 	"os"
+	"io"
 	"flag"
 	"fmt"
+	"bytes"
 )
 
 const (
@@ -21,13 +23,26 @@ type vault struct {
 
 func generate(file string) {//, pass string) {
 	creds := server.NewCredentials()
+    f, err := os.Create(file)
+    defer f.Close()
+    if err != nil {
+        fmt.Println(err)
+    }
+    n, err := io.WriteString(f, creds.String())
+    if err != nil {
+        fmt.Println(n, err)
+    }
 	fmt.Println("Keep key secret, and safe.")
 	fmt.Println("Vault Key: " + creds.String())
 }
 
-func load(file string, pass string) {
-	// server code
-	fmt.Println("Vault Key: " + " loaded")
+func load(file string) {//, pass string) {
+    f, _ := os.Open(file)
+	defer f.Close()
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(f)
+	s := buf.String()
+	fmt.Println("Vault Key: " + s + " loaded")
 }
 
 func update() {
@@ -67,7 +82,7 @@ func main() {
 		switch flags[0] { 
 			case "update": update()
 			case "generate": generate(flags[1])//, flags[2])
-			case "load": load(flags[1], flags[2])
+			case "load": load(flags[1]) //, flags[2])
 			case "pull": pull(flags[1])
 			case "push": push(flags[1])
 			case "lock": lock()
