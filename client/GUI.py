@@ -1,5 +1,6 @@
 from Tkinter import Tk, Text, BOTH, W, N, E, S
 from ttk import Frame, Button, Label, Style
+import subprocess
 
 
 class Example(Frame):
@@ -30,18 +31,14 @@ class Example(Frame):
         area.grid(row=1, column=0, columnspan=2, rowspan=4, 
             padx=5, sticky=E+W+S+N)
         
-        abtn = Button(self, text="Activate")
+        abtn = Button(self, text="Push", command=subprocess.call(#push))
         abtn.grid(row=1, column=3)
 
-        cbtn = Button(self, text="Close")
+        cbtn = Button(self, text="Pull", command=subprocess.call(#pull))
         cbtn.grid(row=2, column=3, pady=4)
         
-        hbtn = Button(self, text="Help")
-        hbtn.grid(row=5, column=0, padx=5)
-
-        obtn = Button(self, text="OK")
-        obtn.grid(row=5, column=3)        
-              
+        hbtn = Button(self, text="Close", command=self.quit)
+        hbtn.grid(row=3, column=0, padx=5)         
 
 def main():
   
