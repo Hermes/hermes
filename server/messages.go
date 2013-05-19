@@ -1,7 +1,7 @@
 package server 
 
 import (
-	"fmt"
+	//"fmt"
 	"github.com/secondbit/wendy"
 	"encoding/json"
 )
@@ -65,7 +65,7 @@ func HandlePUSH_TX(msg []byte) []byte {
 		panic(err)
 	}
 
-	err := FileMap.Push(push)
+	err = FileMap.Push(push)
 	resp := FileMessage{}
 	if err != nil {
 		resp.Status = "Failed to push file"
@@ -86,4 +86,4 @@ func HandlePUSH_TX(msg []byte) []byte {
 }
 func HandlePUSH_RX(msg []byte) {}
 
-func Handle
+//func Handle

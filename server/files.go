@@ -1,9 +1,9 @@
 package server 
 
-import (
-	"fmt"
-	"github.com/secondbit/wendy"
-)
+// import (
+// 	"fmt"
+// 	"github.com/secondbit/wendy"
+// )
 
 const (
 	VaultPath = "~/.Hermes/Vault")
@@ -45,7 +45,7 @@ func (m *Files) HasVaultID(VaultID string) bool {
 }
 
 func (m *Files) GetFilesWithVaultID(VaultID string) []string {
-	filenames = make([]Filename, 0)
+	filenames := make([]Filename, 0)
 
 	for key,values := range m {
 		if key == VaultID {

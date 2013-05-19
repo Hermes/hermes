@@ -1,9 +1,9 @@
-package main
+package server
 
 import (
 	"fmt"
 	"net"
-	"os"
+	//"os"
 )
 
 func getIPs(hostname string) {
@@ -18,8 +18,8 @@ func getIPs(hostname string) {
 
 }
 
-func main() {
-	name, _ := os.Hostname()
-	fmt.Println(name)
-	getIPs(name)
-}
+// func main() {
+// 	name, _ := os.Hostname()
+// 	fmt.Println(name)
+// 	getIPs(name)
+// }
