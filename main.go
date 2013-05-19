@@ -4,7 +4,7 @@ package main
 
 import (
 	"hermes/client"
-	//"hermes/server"
+	"hermes/server"
 	"os"
 	"flag"
 	"fmt"
@@ -19,13 +19,13 @@ type vault struct {
 	Key string
 }
 
-func generate(file string, pass string) {
-	// server code
+func generate(file string) {//, pass string) {
+	creds := server.NewCredentials()
 	fmt.Println("Keep key secret, and safe.")
-	fmt.Println("Vault Key: ")
+	fmt.Println("Vault Key: " + creds.String())
 }
 
-func load() {
+func load(file string, pass string) {
 	// server code
 	fmt.Println("Vault Key: " + " loaded")
 }
@@ -66,7 +66,7 @@ func main() {
 	if client.ValidateFlags(flags) {
 		switch flags[0] { 
 			case "update": update()
-			case "generate": generate(flags[1], flags[2])
+			case "generate": generate(flags[1])//, flags[2])
 			case "load": load(flags[1], flags[2])
 			case "pull": pull(flags[1])
 			case "push": push(flags[1])

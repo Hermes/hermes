@@ -1,26 +1,33 @@
 package server
 
 import (
-	"crypto/hex"
+	"encoding/hex"
 	"crypto/sha256"
 	"fmt"
 	"time"
+	"os"
 )
 
 type NetCredentials struct {
 	NetID []byte
 }
 
+func (f *NetCredentials) SetID(ID []byte) {
+    f.NetID = ID
+}
+
 func NewCredentials() NetCredentials {
-	hostname, err := os.Hostname()
+	hostname, _ := os.Hostname()
 	micro := time.Now().Nanosecond()
 
 	VaultIDString := fmt.Sprintf("%s%s", hostname, micro)
 	sha := sha256.New()
 	sha.Write([]byte(VaultIDString))
-	VaultID := sha.Sum()
+	VaultID := sha.Sum(nil)
 
-	return Credentials(VauldID)
+	cred := NetCredentials{}
+    cred.SetID(VaultID)
+	return cred
 }
 
 func (c NetCredentials) Valid(NetID []byte) bool {
