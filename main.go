@@ -15,7 +15,6 @@ import (
 
 const (
 	blockSize = 1048576
-	tempDir = "temp"
 )
 
 type vault struct {
@@ -62,11 +61,13 @@ func (v vault) update() {
 }
 
 func (v vault) pull(file string) {
-	/*d := client.Join(files)
+	// server code
+	d := client.Join(file)
 	d = client.Decrypt(d, v.Key)
 	d = client.Decompress(d)
-	file, _ := os.Create("../bench-files/test1.zip")
-	io.Copy(file, d)*/
+	//io.Copy(os.Stdout, d)
+	result, _ := os.Create(file)
+	io.Copy(result, d)
 }
 
 func (v vault) push(file string) {
@@ -74,13 +75,12 @@ func (v vault) push(file string) {
 	defer in.Close()
 	i := client.Compress(in)
 	i = client.Encrypt(i, v.Key)
-	client.Split(i, blockSize, tempDir)
+	client.Split(i, blockSize, file)
 	// server code
 }
 
 func lock() {
 	// Remove temp folder (not working)
-	os.Remove(tempDir)
 	err := os.Remove("vault.dat")
 	if err != nil {
 		fmt.Println("No active vault to lock")
@@ -90,11 +90,6 @@ func lock() {
 }
 
 func main() {
-
-	// Creates tempDir
-	if _, err := os.Stat(tempDir); os.IsNotExist(err) {
-		os.Mkdir(tempDir, 0775)
-	}
 
 	var v vault
 
