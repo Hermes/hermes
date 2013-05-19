@@ -78,6 +78,7 @@ func Split(file io.Reader, block_size int, filename string) string {
 
 //Join: Takes a list of 'files' and joins them back together according to it's order
 func Join(filedir string) io.Reader {
+	filedir = path.Join(os.TempDir(), filedir)
 	dir, _ := os.Open(filedir)
 	defer dir.Close()
 	files, _ := dir.Readdir(0)
