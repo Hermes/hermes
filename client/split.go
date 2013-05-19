@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"path"
+	"strings"
 )
 
 func exists(path string) bool {
@@ -83,7 +84,7 @@ func Split(file io.Reader, block_size int, filedir string) []string {
 	return files
 }
 
-func Join(files []string, block_size int, final string) io.Reader {
+func Join(files []string, block_size int) io.Reader {
 	result := make([]byte, 0)
 	for _, file := range files {
 		fi, err := os.Open(file)
@@ -96,6 +97,7 @@ func Join(files []string, block_size int, final string) io.Reader {
 				panic(err)
 			}
 		}()
+
 		r := bufio.NewReader(fi)
 		buf := make([]byte, block_size)
 		n, err := r.Read(buf)
@@ -103,6 +105,7 @@ func Join(files []string, block_size int, final string) io.Reader {
 			result = append(result, bite)
 		}
 	}
-	write_file(result, final)
-	return open_file(final)
+
+	sresult := string(result)
+	return strings.NewReader(sresult)
 }
