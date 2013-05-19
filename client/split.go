@@ -43,6 +43,21 @@ func write_file(content []byte, filename string) {
 	}
 }
 
+func open_file(filename string) io.Reader {
+	// open input file
+	fi, err := os.Open(filename)
+	if err != nil {
+		panic(err)
+	}
+	// close fi on exit and check for its returned error
+	defer func() {
+		if err := fi.Close(); err != nil {
+			panic(err)
+		}
+	}()
+	return fi
+
+}
 func Split(file io.Reader, block_size int, filedir string) []string {
 	// make a buffer to keep chunks that are read
 	files := make([]string, 0)
@@ -66,4 +81,27 @@ func Split(file io.Reader, block_size int, filedir string) []string {
 		files = append(files, filename)
 	}
 	return files
+}
+
+func Join(files []string, block_size int, final string) {
+	result := make([]byte, 0)
+	for _, file := range files {
+		fi, err := os.Open(file)
+		if err != nil {
+			panic(err)
+		}
+		// close fi on exit and check for its returned error
+		defer func() {
+			if err := fi.Close(); err != nil {
+				panic(err)
+			}
+		}()
+		r := bufio.NewReader(fi)
+		buf := make([]byte, block_size)
+		n, err := r.Read(buf)
+		for _, bite := range buf[:n] {
+			result = append(result, bite)
+		}
+	}
+	write_file(result, final)
 }
