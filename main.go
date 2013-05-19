@@ -39,18 +39,28 @@ func generate(file string) {//, pass string) {
 func load(file string) {//, pass string) {
     f, _ := os.Open(file)
 	defer f.Close()
+
+	fo, err := os.Create("vault.dat")
+    defer fo.Close()
+    if err != nil {
+        fmt.Println(err)
+    } else {
+    	io.Copy(fo, f)
+    }
+
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(f)
 	s := buf.String()
 	fmt.Println("Vault Key: " + s + " loaded")
 }
 
-func update() {
+func (v vault) update() {
 	// server code
+	fmt.Println(v.Key)
 	fmt.Println("Vault update successful")
 }
 
-func pull(file string) {
+func (v vault) pull(file string) {
 	//server code
 	/*d := client.Join(files)
 	d = client.Decrypt(d, "password")
@@ -59,7 +69,7 @@ func pull(file string) {
 	io.Copy(file, d)*/
 }
 
-func push(file string) {
+func (v vault) push(file string) {
 	in, _ := os.Open(file)
 	defer in.Close()
 	i := client.Compress(in)
@@ -69,23 +79,43 @@ func push(file string) {
 }
 
 func lock() {
-	fmt.Println("lock")
+	err := os.Remove("vault.dat")
+	if err != nil {
+		fmt.Println("No active vault to lock")
+	} else {
+		fmt.Println("Vault has been locked")
+	}
 }
 
 func main() {
 
 	// check if temp dir exists / make it
 
+	var v vault
+
 	flag.Parse()
 	flags := flag.Args()
 	if client.ValidateFlags(flags) {
+
+		vaultfile, err := os.Open("vault.dat")
+		if err != nil && flags[0] != "generate" && flags[0] != "load" {
+	        fmt.Println("Failed to load vault")
+	        return
+		} else if err == nil {
+			defer vaultfile.Close()
+			buf := new(bytes.Buffer)
+			buf.ReadFrom(vaultfile)
+			s := buf.String()
+			v.Key = s
+		}
+
 		switch flags[0] { 
-			case "update": update()
 			case "generate": generate(flags[1])//, flags[2])
 			case "load": load(flags[1]) //, flags[2])
-			case "pull": pull(flags[1])
-			case "push": push(flags[1])
 			case "lock": lock()
+			case "update": v.update()
+			case "pull": v.pull(flags[1])
+			case "push": v.push(flags[1])
 			default: fmt.Println("Error: Invalid Flags")
 		}
 	} else {
