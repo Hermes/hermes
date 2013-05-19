@@ -1,5 +1,6 @@
 from Tkinter import Tk, Text, BOTH, W, N, E, S
 from ttk import Frame, Button, Label, Style
+from TkFileDialog import *
 import subprocess
 
 
@@ -30,15 +31,19 @@ class Example(Frame):
         area = Text(self)
         area.grid(row=1, column=0, columnspan=2, rowspan=4, 
             padx=5, sticky=E+W+S+N)
-        
-        abtn = Button(self, text="Push", command=subprocess.call(#push))
-        abtn.grid(row=1, column=3)
 
-        cbtn = Button(self, text="Pull", command=subprocess.call(#pull))
-        cbtn.grid(row=2, column=3, pady=4)
-        
-        hbtn = Button(self, text="Close", command=self.quit)
-        hbtn.grid(row=3, column=0, padx=5)         
+        p1btn = Button(self, text="Push")
+        p1btn.grid(row=1, column=3)
+
+        p2btn = Button(self, text="Pull")
+        p2btn.grid(row=2, column=3, pady=4)
+
+        ubtn = Button(self, text="Upload a folder", command=TkFileDialog.askdirectory())
+        ubtn.grid(row=2, column=3, pady=4)
+
+        cbtn = Button(self, text="Close", command=self.quit)
+        cbtn.grid(row=3, column=4, pady=4)
+
 
 def main():
   
