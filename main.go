@@ -10,6 +10,7 @@ import (
 	"flag"
 	"fmt"
 	"bytes"
+	"time"
 )
 
 const (
@@ -51,14 +52,18 @@ func load(file string) {//, pass string) {
 
 func (v vault) update() {
 	// server code
-	fmt.Println(v.Key)
+
+	// Dummy Code
+	fmt.Println("Connecting to network")
+	time.Sleep(3 * time.Second)
+	fmt.Println("Assembling manifest")
+	time.Sleep(4 * time.Second)
 	fmt.Println("Vault update successful")
 }
 
 func (v vault) pull(file string) {
-	//server code
 	/*d := client.Join(files)
-	d = client.Decrypt(d, "password")
+	d = client.Decrypt(d, v.Key)
 	d = client.Decompress(d)
 	file, _ := os.Create("../bench-files/test1.zip")
 	io.Copy(file, d)*/
@@ -68,7 +73,7 @@ func (v vault) push(file string) {
 	in, _ := os.Open(file)
 	defer in.Close()
 	i := client.Compress(in)
-	i = client.Encrypt(i, "password")
+	i = client.Encrypt(i, v.Key)
 	client.Split(i, blockSize, tempDir)
 	// server code
 }
@@ -98,7 +103,7 @@ func main() {
 	if client.ValidateFlags(flags) {
 
 		vaultfile, err := os.Open("vault.dat")
-		if err != nil && flags[0] != "generate" && flags[0] != "lock" {
+		if err != nil && flags[0] != "generate" && flags[0] != "load" {
 	        fmt.Println("Failed to load vault")
 	        return
 		} else if err == nil {
