@@ -47,11 +47,6 @@ func load(file string) {//, pass string) {
     } else {
     	io.Copy(fo, f)
     }
-
-	buf := new(bytes.Buffer)
-	buf.ReadFrom(f)
-	s := buf.String()
-	fmt.Println("Vault Key: " + s + " loaded")
 }
 
 func (v vault) update() {
@@ -79,6 +74,8 @@ func (v vault) push(file string) {
 }
 
 func lock() {
+	// Remove temp folder (not working)
+	os.Remove(tempDir)
 	err := os.Remove("vault.dat")
 	if err != nil {
 		fmt.Println("No active vault to lock")
@@ -89,7 +86,10 @@ func lock() {
 
 func main() {
 
-	// check if temp dir exists / make it
+	// Creates tempDir
+	if _, err := os.Stat(tempDir); os.IsNotExist(err) {
+		os.Mkdir(tempDir, 0775)
+	}
 
 	var v vault
 
@@ -98,7 +98,7 @@ func main() {
 	if client.ValidateFlags(flags) {
 
 		vaultfile, err := os.Open("vault.dat")
-		if err != nil && flags[0] != "generate" && flags[0] != "load" {
+		if err != nil && flags[0] != "generate" && flags[0] != "lock" {
 	        fmt.Println("Failed to load vault")
 	        return
 		} else if err == nil {
