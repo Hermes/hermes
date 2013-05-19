@@ -1,10 +1,10 @@
-package server 
+package server
 
 import (
-	"fmt"
-	"crypto/sha256"
-	"time"
 	"crypto/hex"
+	"crypto/sha256"
+	"fmt"
+	"time"
 )
 
 type NetCredentials struct {
@@ -12,7 +12,7 @@ type NetCredentials struct {
 }
 
 func NewCredentials() NetCredentials {
-	hostname, err := os.Hostname();
+	hostname, err := os.Hostname()
 	micro := time.Now().Nanosecond()
 
 	VaultIDString := fmt.Sprintf("%s%s", hostname, micro)
@@ -38,4 +38,3 @@ func (c NetCredentials) Marshal() []byte {
 func (c NetCredentials) String() string {
 	return hex.EncodeToString(c.NetID)
 }
-

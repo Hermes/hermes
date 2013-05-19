@@ -1,4 +1,4 @@
-package main 
+package main
 
 import (
 	"fmt"
@@ -16,11 +16,10 @@ func getIPs(hostname string) {
 	localIP := fmt.Sprintf("%s", addrs[0])
 	fmt.Println(localIP)
 
-
 }
 
 func main() {
-	name, _ := os.Hostname();
+	name, _ := os.Hostname()
 	fmt.Println(name)
 	getIPs(name)
 }

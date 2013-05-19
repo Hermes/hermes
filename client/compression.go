@@ -3,9 +3,9 @@
 package client
 
 import (
+	"bytes"
 	"code.google.com/p/lzma"
 	"io"
-	"bytes"
 )
 
 func Compress(in io.Reader) io.Reader {
@@ -17,15 +17,17 @@ func Compress(in io.Reader) io.Reader {
 	defer w.Close()
 
 	// Reading from file as buffer and writing compressed
-    buf := make([]byte, 1024)
-    for {
-        n, err := in.Read(buf)
-        if err != nil && err != io.EOF {
-        	panic(err)
-        }
-        if n == 0 { break }
-        w.Write(buf[:n])
-    }
+	buf := make([]byte, 1024)
+	for {
+		n, err := in.Read(buf)
+		if err != nil && err != io.EOF {
+			panic(err)
+		}
+		if n == 0 {
+			break
+		}
+		w.Write(buf[:n])
+	}
 	return &out
 }
 
