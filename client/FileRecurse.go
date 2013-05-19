@@ -16,15 +16,18 @@ func handleError(_e error) {
 func DirWalk(dirPath string) []string {
 	filePaths := make([]string, 0)
 	dir, err := os.Open(dirPath)
-	//fmt.Println("%v\n", dir)
-	handleError(err)
+	//check to see if I have permissions to edit the file
+	handleError(err) //change this to handle the file permission denied error
 	defer dir.Close()
 	fis, err := dir.Readdir(0)
 	handleError(err)
 	for _, fi := range fis {
 		curPath := dirPath + "/" + fi.Name()
 		if fi.IsDir() {
-			DirWalk(curPath)
+			//walking through files in the current path and adding them to the array one by one
+			for _, newfile := range DirWalk(curPath) {
+				filePaths = append([]string(filePaths), newfile)
+			}
 		} else {
 			filePaths = append([]string(filePaths), string(curPath))
 		}
