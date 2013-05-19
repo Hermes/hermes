@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"crypto/sha256"
 	"encoding/hex"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"math/rand"
@@ -87,10 +86,8 @@ func Join(filedir string) io.Reader {
 	values := make(map[int]string)
 	for _, j := range files {
 		val, _ := strconv.Atoi(j.Name()[len(j.Name())-1:])
-		fmt.Printf("%v\n", val)
 		values[val] = j.Name()
 	}
-	fmt.Printf("%v", values)
 	for i := 1; i <= len(values); i++ {
 		//read the entire file
 		buf, err := ioutil.ReadFile(path.Join(filedir, values[i]))
@@ -106,7 +103,6 @@ func Join(filedir string) io.Reader {
 
 	//create an io.Reader and return it
 	sresult := string(result)
-	fmt.Printf(sresult)
 	os.RemoveAll(filedir)
 	return strings.NewReader(sresult)
 }
