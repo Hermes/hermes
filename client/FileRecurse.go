@@ -4,19 +4,21 @@ import (
 	"fmt"
 	"os"
 	"log"
-	"strings"
+	//"strings"
 )
 
+//Error handler
 func handleError( _e error ) {
       if _e != nil {
         log.Fatal( _e )
       }
     }
 
+//walks the selected folder and returns a 
 func DirWalk(dirPath string) []string {
 	filePaths := make([]string, 0)
 	dir, err :=os.Open(dirPath)
-	fmt.Printf("%v\n", dir)
+	//fmt.Println("%v\n", dir)
 	handleError(err)
 	defer dir.Close()
 	fis, err := dir.Readdir(0)
@@ -26,8 +28,9 @@ func DirWalk(dirPath string) []string {
         if fi.IsDir() {
         	DirWalk(curPath)
         } else {
-        	filePaths = append(strings.Join(filePaths, string(curPath)))
+        	filePaths = append(filePaths, string(curPath))
+        	fmt.Println(filePaths)
         }
 	}
-	return filePaths
+	return filepaths
 }
