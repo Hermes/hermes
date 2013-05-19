@@ -1,4 +1,4 @@
-package main
+package client
 
 import (
 	"bufio"
@@ -109,16 +109,4 @@ func Join(filedir string) io.Reader {
 	fmt.Printf(sresult)
 	os.RemoveAll(filedir)
 	return strings.NewReader(sresult)
-}
-
-func main() {
-	buf, err := ioutil.ReadFile("flags.go")
-	if err != nil {
-		panic(err)
-	}
-
-	//combine the bytes together
-	fi := strings.NewReader(string(buf))
-	Split(fi, 256, "flags.go")
-	Join("flags.go")
 }
