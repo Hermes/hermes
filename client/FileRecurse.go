@@ -32,5 +32,5 @@ func DirWalk(dirPath string) []string {
         	fmt.Println(filePaths)
         }
 	}
-	return filepaths
+	return filePaths
 }
