@@ -1,7 +1,7 @@
 package client
 
 import (
-	"fmt"
+	//"fmt"
 	"os"
 	"log"
 	//"strings"
@@ -28,8 +28,7 @@ func DirWalk(dirPath string) []string {
         if fi.IsDir() {
         	DirWalk(curPath)
         } else {
-        	filePaths = append(filePaths, string(curPath))
-        	fmt.Println(filePaths)
+        	filePaths = append([]string(filePaths), string(curPath))
         }
 	}
 	return filePaths
