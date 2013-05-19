@@ -3,6 +3,7 @@ package client
 import (
 	"log"
 	"os"
+	"path"
 )
 
 //Error handler
@@ -17,12 +18,14 @@ func DirWalk(dirPath string) []string {
 	filePaths := make([]string, 0)
 	dir, err := os.Open(dirPath)
 	//check to see if I have permissions to edit the file
-	handleError(err) //change this to handle the file permission denied error
+	if os.IsPermission(err) {
+		return filePaths
+	} //change this to handle the file permission denied error
 	defer dir.Close()
 	fis, err := dir.Readdir(0)
 	handleError(err)
 	for _, fi := range fis {
-		curPath := dirPath + "/" + fi.Name()
+		curPath := path.Join(dirPath, fi.Name())
 		if fi.IsDir() {
 			//walking through files in the current path and adding them to the array one by one
 			for _, newfile := range DirWalk(curPath) {
