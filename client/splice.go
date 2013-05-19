@@ -6,10 +6,21 @@ import (
 	"encoding/hex"
 	"io"
 	"io/ioutil"
+	"math/rand"
 	"os"
 	"path"
 	"strings"
+	"time"
 )
+
+func randomString(l int) string {
+	rand.Seed(time.Now().UTC().UnixNano())
+	bytes := make([]byte, l)
+	for i := 0; i < l; i++ {
+		bytes[i] = byte(65 + rand.Intn(90-65))
+	}
+	return string(bytes)
+}
 
 //Split: Splits a 'file' into blocks of size 'block_size' and outputs them into
 //The directory given by 'filedir'
@@ -30,7 +41,7 @@ func Split(file io.Reader, block_size int, filedir string) []string {
 
 		//Hash the file with SHA256 to determine a unique filename
 		h := sha256.New()
-		s := string(buf[:n])
+		s := string(buf[:n]) + filedir + randomString(8)
 		io.WriteString(h, s)
 		//Creating the filename by appending filedir with the SHA256 Hash
 		filename := path.Join(filedir, hex.EncodeToString(h.Sum(nil)))

@@ -1,5 +1,5 @@
 // Hermes, a distributed backup system (DBS)
-// Chunk size benchmarking
+// Compression benchmarking
 
 package main
 
@@ -18,38 +18,35 @@ func fileSize(stat os.FileInfo) int {
 
 func main() {
 
-	files := []string{"zip", "pdf", "mp3", "doc"}
-	sizes := []int{1024, 524288, 1048576}
+	benchdir := "../bench-files"
+	blockSize := 1048576
 
-	for _, size := range sizes {
+	dir, _ := os.Open(benchdir)
+	defer dir.Close()
+	files, _ := dir.Readdir(0)
 		
-		fmt.Println("Block Size: " + strconv.Itoa(size))
-		fmt.Println("---------------------")
-		
-		for _, file := range files {
-			
-			in, _ := os.Open("../bench-files/test." + file)
-			i := client.Compress(in)
-			i = client.Encrypt(i, "password")
-			client.Split(i, size, "temp")
-			stat, _ := in.Stat()
-			var beforeSize int
-			beforeSize = int(stat.Size())
+	fmt.Println("Block Size: " + strconv.Itoa(blockSize))
+	fmt.Println("-------------------")
+	
+	for _, file := range files {
+		in, _ := os.Open(benchdir + "/" + file.Name())
+		i := client.Compress(in)
+		i = client.Encrypt(i, "password")
+		client.Split(i, blockSize, "temp")
+		var beforeSize int
+		beforeSize = int(file.Size())
 
-			// for file in "temp" get fileSize
-			dir, _ := os.Open("temp")
-			defer dir.Close()
-			files, _ := dir.Readdir(0)
-			afterSize := 0
-			for _, file := range files {
-		    	afterSize += fileSize(file)
-		    	os.Remove("temp/" + file.Name())
-			}
-
-			fmt.Println(file + "\t" + strconv.Itoa(beforeSize) + "\t-->\t" + strconv.Itoa(afterSize) + "\t" + strconv.Itoa((beforeSize / afterSize)*100) + "%")
-			in.Close()
+		// for file in "temp" get fileSize
+		tempdir, _ := os.Open("temp")
+		tempfiles, _ := tempdir.Readdir(0)
+		afterSize := 0
+		for _, temp := range tempfiles {
+	    	afterSize += fileSize(temp)
+	    	os.Remove("temp/" + temp.Name())
 		}
-		fmt.Println("")
+		tempdir.Close()
+		fmt.Println(file.Name() + "\t" + strconv.Itoa(beforeSize) + "\t-->\t" + strconv.Itoa(afterSize) + "\t")
+		in.Close()
 	}
 
 }
