@@ -14,7 +14,7 @@ func handleError( _e error ) {
       }
     }
 
-//walks the selected folder and returns a 
+//walks the selected folder and returns an array of files as strings
 func DirWalk(dirPath string) []string {
 	filePaths := make([]string, 0)
 	dir, err :=os.Open(dirPath)
