@@ -13,6 +13,7 @@ type Server struct {
 	Hostname string
 	ID string
 	localIP, globalIP string
+	kill chan bool
 }
 
 func NewServer() Server {
@@ -32,10 +33,11 @@ func NewServer() Server {
 								Server.globalIP, "angelhack",
 								31337)
 
-	credentials := NewCredentials(Server.Id)
-
+	credentials := wendy.Passphrase("Hermes")
 	Server.Cluster = wendy.NewCluster(node, credentials)
+
 	
+
 
 }
 
