@@ -1,9 +1,10 @@
-package client
+package main
 
 import (
 	"bufio"
 	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"math/rand"
@@ -83,9 +84,16 @@ func Join(filedir string) io.Reader {
 	defer dir.Close()
 	files, _ := dir.Readdir(0)
 	result := make([]byte, 0)
-	for _, file := range files {
+	values := make(map[int]string)
+	for _, j := range files {
+		val, _ := strconv.Atoi(j.Name()[len(j.Name())-1:])
+		fmt.Printf("%v\n", val)
+		values[val] = j.Name()
+	}
+	fmt.Printf("%v", values)
+	for i := 1; i <= len(values); i++ {
 		//read the entire file
-		buf, err := ioutil.ReadFile(path.Join(filedir, file.Name()))
+		buf, err := ioutil.ReadFile(path.Join(filedir, values[i]))
 		if err != nil {
 			panic(err)
 		}
@@ -98,5 +106,19 @@ func Join(filedir string) io.Reader {
 
 	//create an io.Reader and return it
 	sresult := string(result)
+	fmt.Printf(sresult)
+	os.RemoveAll(filedir)
 	return strings.NewReader(sresult)
+}
+
+func main() {
+	buf, err := ioutil.ReadFile("flags.go")
+	if err != nil {
+		panic(err)
+	}
+
+	//combine the bytes together
+	fi := strings.NewReader(string(buf))
+	Split(fi, 256, "flags.go")
+	Join("flags.go")
 }
