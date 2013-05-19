@@ -5,11 +5,14 @@ package main
 import (
 	"hermes/client"
 	"os"
-	"io"
+	//"io"
 )
 
 func main() {
-	in, _ := os.Open("../README.md")
+	in, _ := os.Open("../test.zip")
 	defer in.Close()
-	io.Copy(os.Stdout, client.Decompress(client.Compress(in)))
+	i := client.Compress(in)
+	i = client.Encrypt(i, "password")
+	client.Split(i, 1048576, "temp")
+
 }

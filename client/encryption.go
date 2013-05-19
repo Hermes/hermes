@@ -58,8 +58,7 @@ func Decrypt(in io.Reader, key string) io.Reader {
     io.WriteString(h, key)
     key_text := h.Sum(nil)
  
-    // We chose our cipher type here in this case
-    // we are using AES.
+    // We chose our cipher type here in this case we are using AES.
     c, err := aes.NewCipher([]byte(key_text));
     if err != nil {
         fmt.Printf("Error: NewCipher(%d bytes) = %s", len(key_text), err)
