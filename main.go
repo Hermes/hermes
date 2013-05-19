@@ -3,98 +3,71 @@
 package main
 
 import (
-	//"hermes/client"
+	"hermes/client"
 	//"hermes/server"
 	"os"
-	//"io"
 	"flag"
 	"fmt"
 )
 
-func generate(file string, pass string) {
-	fmt.Println("generate")
+const (
+	blockSize = 1048576
+	tempDir = "temp"
+)
+
+type vault struct {
+	Key string
 }
 
-func loadVault() {
-	fmt.Println("loadVault")
+func generate(file string, pass string) {
+	// server code
+	fmt.Println("Keep key secret, and safe.")
+	fmt.Println("Vault Key: ")
+}
+
+func load() {
+	// server code
+	fmt.Println("Vault Key: " + " loaded")
 }
 
 func update() {
-	fmt.Println("update")
+	// server code
+	fmt.Println("Vault update successful")
 }
 
 func pull(file string) {
-	fmt.Println("pull")
+	//server code
+	/*d := client.Join(files)
+	d = client.Decrypt(d, "password")
+	d = client.Decompress(d)
+	file, _ := os.Create("../bench-files/test1.zip")
+	io.Copy(file, d)*/
 }
 
 func push(file string) {
-	fmt.Println("push")
+	in, _ := os.Open(file)
+	defer in.Close()
+	i := client.Compress(in)
+	i = client.Encrypt(i, "password")
+	client.Split(i, blockSize, tempDir)
+	// server code
 }
 
 func lock() {
 	fmt.Println("lock")
 }
 
-func flagValidate(flags []string) bool {
-	allFlags := []string{"generate", "update", "pull", "push", "lock"}
-
-	// Validating number of flags
-	if len(flags) == 0 || len(flags) >=  3 {
-		return false
-	}
-
-	// Validating one flag is passed
-	count := 0
-	for _, flag := range flags {
-		for _, pflag := range allFlags {
-			if (flag == pflag) {
-            	count++
-        	}
-        	if count > 1 {
-        		return false
-        	}
-		}
-    }
-
-    // Validating for specific cases
-    switch flags[0] { 
-		case "update":
-			if len(flags) != 1 {
-				return false
-			}
-		case "generate":
-			if len(flags) < 2 || len(flags) > 3 {
-				return false
-			} else if len(flags) == 2 {
-				flags = append(flags, "")
-			}
-		case "pull":
-			if len(flags) != 2 {
-				return false
-			}
-		case "push":
-			if len(flags) != 2 {
-				return false
-			} else if _, err := os.Stat(flags[1]); os.IsNotExist(err) {
-				return false
-			}
-		case "lock":
-			if len(flags) != 1 {
-				return false
-			}
-		default: return false
-	}
-	return true
-}
-
 func main() {
+
+	// check if temp dir exists / make it
 
 	flag.Parse()
 	flags := flag.Args()
-	if flagValidate(flags) {
+	if client.ValidateFlags(flags) {
 		switch flags[0] { 
 			case "update": update()
 			case "generate": generate(flags[1], flags[2])
+			case "load": load(flags[1], flags[2])
 			case "pull": pull(flags[1])
 			case "push": push(flags[1])
 			case "lock": lock()
@@ -104,17 +77,4 @@ func main() {
 		fmt.Println("Error: Invalid Flags")
 	}
 
-
-	// Testing code
-	/*
-	in, _ := os.Open("../bench-files/test.zip")
-	defer in.Close()
-	i := client.Compress(in)
-	i = client.Encrypt(i, "password")
-	files := client.Split(i, 1048576, "temp")
-	d := client.Join(files)
-	d = client.Decrypt(d, "password")
-	d = client.Decompress(d)
-	file, _ := os.Create("../bench-files/test1.zip")
-	io.Copy(file, d)*/
 }
