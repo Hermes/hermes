@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"io"
+	"io/ioutil"
 	"os"
 	"path"
 	"strings"
@@ -60,30 +61,17 @@ func Split(file io.Reader, block_size int, filedir string) []string {
 }
 
 //Join: Takes a list of 'files' and joins them back together according to it's order
-func Join(files []string, block_size int) io.Reader {
+func Join(files []string) io.Reader {
 	result := make([]byte, 0)
 	for _, file := range files {
-		input_file, err := os.Open(file)
-		if err != nil {
-			panic(err)
-		}
-		// close fi on exit and check for its returned error
-		defer func() {
-			if err := input_file.Close(); err != nil {
-				panic(err)
-			}
-		}()
-
-		//read all the bytes from the file
-		r := bufio.NewReader(input_file)
-		buf := make([]byte, block_size)
-		n, err := r.Read(buf)
+		//read the entire file
+		buf, err := ioutil.ReadFile(file)
 		if err != nil {
 			panic(err)
 		}
 
 		//combine the bytes together
-		for _, bite := range buf[:n] {
+		for _, bite := range buf {
 			result = append(result, bite)
 		}
 	}
