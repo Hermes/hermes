@@ -9,6 +9,7 @@ import (
 	"math/rand"
 	"os"
 	"path"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -24,12 +25,16 @@ func randomString(l int) string {
 
 //Split: Splits a 'file' into blocks of size 'block_size' and outputs them into
 //The directory given by 'filedir'
-func Split(file io.Reader, block_size int, filedir string) []string {
+func Split(file io.Reader, block_size int, filename string) string {
 	final_files := make([]string, 0)
 	buf := make([]byte, block_size)
 	//Open the file
 	file = bufio.NewReader(file)
+	filedir := path.Join(os.TempDir(), filename)
+	os.Mkdir(filedir, 0775)
+	i := 0
 	for {
+		i++
 		// read a chunk
 		n, err := file.Read(buf)
 		if err != nil && err != io.EOF {
@@ -44,7 +49,7 @@ func Split(file io.Reader, block_size int, filedir string) []string {
 		s := string(buf[:n]) + filedir + randomString(8)
 		io.WriteString(h, s)
 		//Creating the filename by appending filedir with the SHA256 Hash
-		filename := path.Join(filedir, hex.EncodeToString(h.Sum(nil)))
+		filename := path.Join(filedir, hex.EncodeToString(h.Sum(nil))+"."+strconv.Itoa(i))
 
 		//Write the file and add it's relative path to the list
 		fo, err := os.Create(filename)
@@ -68,15 +73,18 @@ func Split(file io.Reader, block_size int, filedir string) []string {
 		}
 		final_files = append(final_files, filename)
 	}
-	return final_files
+	return filedir
 }
 
 //Join: Takes a list of 'files' and joins them back together according to it's order
-func Join(files []string) io.Reader {
+func Join(filedir string) io.Reader {
+	dir, _ := os.Open(filedir)
+	defer dir.Close()
+	files, _ := dir.Readdir(0)
 	result := make([]byte, 0)
 	for _, file := range files {
 		//read the entire file
-		buf, err := ioutil.ReadFile(file)
+		buf, err := ioutil.ReadFile(path.Join(filedir, file.Name()))
 		if err != nil {
 			panic(err)
 		}
