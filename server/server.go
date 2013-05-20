@@ -7,7 +7,17 @@ import (
 	"net"
 )
 
-type Server struct {
+var (
+	Server HermesServer
+	FileMap Files
+)
+
+func init() {
+	Server = NewServer()
+	FileMap = NewFilesMap()
+}
+
+type HermesServer struct {
 	Cluster wendy.Cluster
 	Node wendy.Node
 	Hostname string
@@ -16,8 +26,8 @@ type Server struct {
 	kill chan bool
 }
 
-func NewServer() Server {
-	Server := Server{}
+func NewServer() HermesServer {
+	Server := HermesServer{}
 	Server.Hostname, err := os.Hostname()
 	if err != nil {
 		fmt.Println(err)
@@ -31,15 +41,27 @@ func NewServer() Server {
 	Server.localIP, Server.globalIP = getIPs()
 	Server.Node = wendy.NewNode(Server.ID, Server.localIP,
 								Server.globalIP, "angelhack",
-								31337)
+								1337)
 
 	credentials := wendy.Passphrase("Hermes")
 	Server.Cluster = wendy.NewCluster(node, credentials)
 
-	
+	go func() {
+		defer cluster.Stop()
+		err := cluster.Listen()
+		if err != nil {
+			panic(err.Error())
+		}
+	}()
 
+	app := &HermesApplication{}
+	Server.Cluster.RegisterCallback(app)
+	Server.Cluster.Join("ip of another Node", 1337)
 
+	return Server
 }
+
+
 
 func getIPs(hostname string) (string, string) {
 	addrs, err := net.LookupHost(hostname)

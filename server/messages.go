@@ -35,6 +35,8 @@ type ManifestMessage struct {
 	Filenames []string
 }
 
+/****** MESSAGE ROUTER/HANDLERS ******/
+
 func MessageHandler(msg wendy.Message) {
 	var response wendy.Message
 
@@ -86,4 +88,7 @@ func HandlePUSH_TX(msg []byte) []byte {
 }
 func HandlePUSH_RX(msg []byte) {}
 
-//func Handle
+
+func Push(VaultID string, filepath string) {
+	
+}

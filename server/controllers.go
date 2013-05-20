@@ -13,11 +13,12 @@ func (app *HermesApplication) OnError(err error) {
 }
 
 func (app *HermesApplication) OnDeliver(msg wendy.Message) {
-    fmt.Println("Received message: ", msg)
+	// Quickly pass the msg off to a goroutine an return
+    go MessageHanlder(msg)
 }
 
 func (app *HermesApplication) OnForward(msg *wendy.Message, next wendy.NodeID) bool {
-    fmt.Printf("Forwarding message %s to Node %s.", msg.Key, next)
+    fmt.Printf("Forwarding message %s to Node %s.", msg.ID, next)
     return true // return false if you don't want the message forwarded
 }
 
@@ -37,5 +38,3 @@ func (app *HermesApplication) OnHeartbeat(node *wendy.Node) {
     fmt.Println("Received heartbeat from ", node.ID)
 }
 
-// app := &HermesApplication{}
-// cluster.RegisterCallback(app)

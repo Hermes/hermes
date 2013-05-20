@@ -1,14 +1,12 @@
 package server 
 
-// import (
-// 	"fmt"
-// 	"github.com/secondbit/wendy"
-// )
+import (
+	"fmt"
+	"github.com/secondbit/wendy"
+)
 
 const (
 	VaultPath = "~/.Hermes/Vault")
-
-type VaultID string
 
 type Files struct {
 	Map map[string]map[string][]FilePart
@@ -25,7 +23,7 @@ func NewFilesMap() Files {
 	return Files
 }
 
-func (m *Files) Insert(pushFile PushJSON) error {
+func (m *Files) Push(pushFile FileMessage) error {
 	files := m[pushFile.VaultID]
 	if files == nil {		//Already has fileparts
 		files := make(map[string][]FilePart)
@@ -35,6 +33,10 @@ func (m *Files) Insert(pushFile PushJSON) error {
 	parts = append(parts, part)
 
 	m[pushFile.VaultID] = files
+
+	//TODO write actual file
+
+	return nil
 }
 
 func (m *Files) HasVaultID(VaultID string) bool {
@@ -45,7 +47,7 @@ func (m *Files) HasVaultID(VaultID string) bool {
 }
 
 func (m *Files) GetFilesWithVaultID(VaultID string) []string {
-	filenames := make([]Filename, 0)
+	filenames = make([]Filename, 0)
 
 	for key,values := range m {
 		if key == VaultID {
