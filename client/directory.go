@@ -6,33 +6,40 @@ import (
 	"path"
 )
 
-//Error handler
-func handleError(_e error) {
-	if _e != nil {
-		log.Fatal(_e)
-	}
+func merge(a, b []string) []string {
+   result := make([]string, len(a) + len(b))
+   copy(result, a)
+   copy(result[len(a):], b)
+   return result
 }
 
-//walks the selected folder and returns an array of files as strings
 func DirWalk(dirPath string) []string {
+
+	// Opening directory and error checking
 	filePaths := make([]string, 0)
 	dir, err := os.Open(dirPath)
-	//check to see if I have permissions to edit the file
-	if os.IsPermission(err) {
-		return filePaths
-	} //change this to handle the file permission denied error
+	dirStat, _ := dir.Stat()
+	if os.IsPermission(err) { // Checks for editing permissions
+		return filePaths // Change to handle file permission denied error
+	} else if !dirStat.IsDir() { // Ensures input is directory
+		return []string{dirPath}
+	}
 	defer dir.Close()
-	fis, err := dir.Readdir(0)
-	handleError(err)
-	for _, fi := range fis {
-		curPath := path.Join(dirPath, fi.Name())
-		if fi.IsDir() {
-			//walking through files in the current path and adding them to the array one by one
-			for _, newfile := range DirWalk(curPath) {
-				filePaths = append([]string(filePaths), newfile)
-			}
-		} else {
-			filePaths = append([]string(filePaths), string(curPath))
+
+	// Reading contents of directory
+	files, err := dir.Readdir(0)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Parsing contents of directory
+	for _, file := range files {
+		curPath := path.Join(dirPath, file.Name())
+		if file.IsDir() { // Recursive directory parsing
+			subDir := DirWalk(curPath)
+			filePaths = merge(filePaths, subDir)
+		} else { // Appending files from directory
+			filePaths = append(filePaths, string(curPath))
 		}
 	}
 	return filePaths
