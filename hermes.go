@@ -107,11 +107,18 @@ func main() {
 	flag.BoolVar(&help, "h", false, "Add -h for help message")
 	flag.BoolVar(&help, "help", false, "Add -h for help message")
 	flag.BoolVar(&verbose, "v", false, "Add -v for verbose messages")
-	
-	// Flag variable handling
 	flag.Parse()
+
+	// Help handler
 	if help {
-		// Help message
+		fmt.Println("hermes - An open-source distributed unlimited redundant backup solution")
+		fmt.Println("<> required / () optional\n")
+		fmt.Println("generate <file> (password)\tGenerates new vault file")
+		fmt.Println("load <file/address> (password)\tLoads vault as active")
+		fmt.Println("update\t\t\t\tUpdates the vault.dat manifest")
+		fmt.Println("push <file/folder>\t\tPushes file to network")
+		fmt.Println("pull <file/folder>\t\tPulls file from network")
+		fmt.Println("lock\t\t\t\tLocks vault and deletes vault.dat")
 		return
 	}
 
