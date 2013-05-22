@@ -10,12 +10,16 @@ import (
 	"flag"
 	"fmt"
 	"bytes"
+	"net/http"
+	"encoding/json"
 )
 
 var verbose bool
 
 const (
-	blockSize = 1048576
+	hermesVersion	= 0.0
+	hermesBuild		= 0001
+	blockSize		= 1048576
 )
 
 type vault struct {
@@ -91,6 +95,50 @@ func lock() {
 	}
 }
 
+func upgrade() {
+
+	// Checking for latest version
+	resp, err := http.Get("http://golang.org/")
+	if err != nil {
+		vprint("Error: No able to get latest version")
+	}
+	defer resp.Body.Close()
+
+	b, err := json.Marshal(resp)
+    fmt.Println(string(b))
+
+	//Unmarshal(resp.Body(), v interface{})
+
+
+	/* Creating file container
+	out, err := os.Create("hermes_")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer out.Close()
+
+	// Retrieving Alexa top million
+	resp, err := http.Get("http://s3.amazonaws.com/alexa-static/top-1m.csv.zip")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	io.Copy(out, resp.Body)*/
+
+	/*
+	if md5 = json.md5 {
+		Remove(thisfile)
+		Rename(thisfile_, thisfile)
+	} else {
+		Remove(thisfile_)
+		vprint("Error: Failed to update")
+	}
+	*/
+
+
+}
+
 func vprint (msg string) {
 	if verbose {
 		fmt.Println(msg)
@@ -113,6 +161,7 @@ func main() {
 	if help {
 		fmt.Println("hermes - An open-source distributed unlimited redundant backup solution")
 		fmt.Println("<> required / () optional\n")
+		fmt.Println("upgrade\t\t\t\tUpgrades hermes client to latest version")
 		fmt.Println("generate <file> (password)\tGenerates new vault file")
 		fmt.Println("load <file/address> (password)\tLoads vault as active")
 		fmt.Println("update\t\t\t\tUpdates the vault.dat manifest")
@@ -126,8 +175,9 @@ func main() {
 	flags := flag.Args()
 	if client.ValidateFlags(flags) {
 
+		// Loading vault.dat
 		vaultfile, err := os.Open("vault.dat")
-		if err != nil && flags[0] != "generate" && flags[0] != "load" {
+		if err != nil && flags[0] != "generate" && flags[0] != "load" && flags[0] != "upgrade" {
 	        fmt.Println("Failed to load vault")
 	        return
 		} else if err == nil {
@@ -138,15 +188,18 @@ func main() {
 			v.Key = s
 		}
 
+		// Arguement cases
 		switch flags[0] { 
 			case "generate": generate(flags[1])//, flags[2])
 			case "load": load(flags[1]) //, flags[2])
 			case "lock": lock()
+			case "upgrade": upgrade()
 			case "update": v.update()
 			case "pull": v.pull(flags[1])
 			case "push": v.push(flags[1])
 			default: fmt.Println("Error: Invalid Flags")
 		}
+
 	} else {
 		fmt.Println("Error: Invalid Flags")
 	}
