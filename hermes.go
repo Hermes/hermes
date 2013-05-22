@@ -10,15 +10,13 @@ import (
 	"flag"
 	"fmt"
 	"bytes"
-	"net/http"
-	"encoding/json"
 )
 
 var verbose bool
 
 const (
-	hermesVersion	= 0.0
-	hermesBuild		= 0001
+	hermesVersion	= 0.1
+	hermesBuild		= 1001
 	blockSize		= 1048576
 )
 
@@ -95,50 +93,6 @@ func lock() {
 	}
 }
 
-func upgrade() {
-
-	// Checking for latest version
-	resp, err := http.Get("http://golang.org/")
-	if err != nil {
-		vprint("Error: No able to get latest version")
-	}
-	defer resp.Body.Close()
-
-	b, err := json.Marshal(resp)
-    fmt.Println(string(b))
-
-	//Unmarshal(resp.Body(), v interface{})
-
-
-	/* Creating file container
-	out, err := os.Create("hermes_")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer out.Close()
-
-	// Retrieving Alexa top million
-	resp, err := http.Get("http://s3.amazonaws.com/alexa-static/top-1m.csv.zip")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer resp.Body.Close()
-
-	io.Copy(out, resp.Body)*/
-
-	/*
-	if md5 = json.md5 {
-		Remove(thisfile)
-		Rename(thisfile_, thisfile)
-	} else {
-		Remove(thisfile_)
-		vprint("Error: Failed to update")
-	}
-	*/
-
-
-}
-
 func vprint (msg string) {
 	if verbose {
 		fmt.Println(msg)
@@ -193,7 +147,7 @@ func main() {
 			case "generate": generate(flags[1])//, flags[2])
 			case "load": load(flags[1]) //, flags[2])
 			case "lock": lock()
-			case "upgrade": upgrade()
+			case "upgrade": client.Upgrade(hermesVersion, hermesBuild)
 			case "update": v.update()
 			case "pull": v.pull(flags[1])
 			case "push": v.push(flags[1])
