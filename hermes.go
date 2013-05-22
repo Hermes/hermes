@@ -10,8 +10,9 @@ import (
 	"flag"
 	"fmt"
 	"bytes"
-	"time"
 )
+
+var verbose bool
 
 const (
 	blockSize = 1048576
@@ -28,18 +29,19 @@ func generate(file string) {//, pass string) {
     if err != nil {
         fmt.Println(err)
     }
-    n, err := io.WriteString(f, creds.String())
+    _, err = io.WriteString(f, creds.String())
     if err != nil {
-        fmt.Println(n, err)
+        fmt.Println(err)
     }
 	fmt.Println("Keep key secret, and safe.")
 	fmt.Println("Vault Key: " + creds.String())
 }
 
 func load(file string) {//, pass string) {
+	vprint("Reading vault file")
     f, _ := os.Open(file)
 	defer f.Close()
-
+	vprint("Writing to vault.dat")
 	fo, err := os.Create("vault.dat")
     defer fo.Close()
     if err != nil {
@@ -51,30 +53,31 @@ func load(file string) {//, pass string) {
 
 func (v vault) update() {
 	// server code
-
-	// Dummy Code
-	fmt.Println("Connecting to network")
-	time.Sleep(3 * time.Second)
-	fmt.Println("Assembling manifest")
-	time.Sleep(4 * time.Second)
-	fmt.Println("Vault update successful")
 }
 
 func (v vault) pull(file string) {
 	// server code
+	vprint("Joining blocks")
 	d := client.Join(file)
+	vprint("Decrypting file")
 	d = client.Decrypt(d, v.Key)
+	vprint("Decompressing file")
 	d = client.Decompress(d)
-	//io.Copy(os.Stdout, d)
+	vprint("Saving file")
 	result, _ := os.Create(file)
+	defer result.Close()
 	io.Copy(result, d)
 }
 
 func (v vault) push(file string) {
+	vprint("Reading file")
 	in, _ := os.Open(file)
 	defer in.Close()
+	vprint("Compressing file")
 	i := client.Compress(in)
+	vprint("Encrypting file")
 	i = client.Encrypt(i, v.Key)
+	vprint("Spliting file into blocks")
 	client.Split(i, blockSize, file)
 	// server code
 }
@@ -82,17 +85,37 @@ func (v vault) push(file string) {
 func lock() {
 	err := os.Remove("vault.dat")
 	if err != nil {
-		fmt.Println("No active vault to lock")
+		fmt.Println("Error: No active vault to lock")
 	} else {
 		fmt.Println("Vault has been locked")
 	}
 }
 
+func vprint (msg string) {
+	if verbose {
+		fmt.Println(msg)
+	}
+}
+
 func main() {
 
+	// Vault instantiation
 	var v vault
 
+	// Flag variables
+	var help bool
+	flag.BoolVar(&help, "h", false, "Add -h for help message")
+	flag.BoolVar(&help, "help", false, "Add -h for help message")
+	flag.BoolVar(&verbose, "v", false, "Add -v for verbose messages")
+	
+	// Flag variable handling
 	flag.Parse()
+	if help {
+		// Help message
+		return
+	}
+
+	// Flag argument handling
 	flags := flag.Args()
 	if client.ValidateFlags(flags) {
 
