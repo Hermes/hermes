@@ -34,3 +34,10 @@ Push file to network
 Pull file from network
 
     hermes pull <file>
+
+
+## Contributors
+
+[eud0xus](https://github.com/eud0xus)  
+[William-Mak](https://github.com/William-Mak)  
+[AnthonyKalsatos](https://github.com/AnthonyKalsatos)  
