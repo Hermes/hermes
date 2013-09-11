@@ -10,16 +10,17 @@ class block:
 def bin_ascii(s):
 	return ''.join(chr(int(s[i:i+8], 2)) for i in xrange(0, len(s), 8))
 
-def encode(s, d, b):
-	# s~ource, d~istribution, b~lock size
-	s = ''.join(['%08d'%int(bin(ord(i))[2:]) for i in s])
+def encode(s, d, b, p):
+	# s~ource, d~istribution, b~lock size, p~ercentage of blocks
+
+	# convert s to binary!
 	
 	chunks = []
 	for i in range(len(s) / b):
-		chunks.append(s[i:i + b])
+		chunks.append(s[i * b:(i * b) + b])
 
 	blocks = []
-	for i in range(len(chunks)):
+	for i in range(int(len(chunks) * p)):
 		index = randint(0, len(chunks)-1)
 		iblock = block([index], chunks[index])
 		for i in range(randint(0, d)):
@@ -31,14 +32,31 @@ def encode(s, d, b):
 	return blocks
 	
 def decode(blocks):
-	
 	found = {}
-	
-	while len(found.items()) < len(blocks):
-		for b in blocks:
-			if len(b.parents) == 1:
-				found[b.parents[0]] = b.content
-		# for item in found, remove from s
+	fail = 0
+	prev = 0
+
+	while blocks:
+
+		print len(blocks)
+		b = blocks.pop(0)
+
+		if len(b.parents) == 0:
+			pass
+
+		elif len(b.parents) == 1:
+			found[b.parents[0]] = b.content
+		
+		else:
+			parents = []
+			for parent in b.parents:
+				if found.has_key(parent):
+					b.content = xor(b.content, found[parent])
+				else:
+					parents.append(parent)
+			b.parents = parents
+			blocks.append(b)
+					
 	return found
 	
 def xor(s1, s2):
@@ -52,6 +70,8 @@ def xor(s1, s2):
 	
 if __name__ == '__main__':
 	f = open("sample.txt", "r")
-	e = encode(f.read(), 10, 64)
-	print decode(e)
+	e = encode(f.read(), 10, 64, 10)
+	d = decode(e)
+	print d
+	f.close()
 	
