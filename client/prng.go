@@ -1,7 +1,7 @@
 package client
 
 import (
-	"fmt"
+	// "fmt"
 	"math/rand"
 	"math"
 	"encoding/hex"
