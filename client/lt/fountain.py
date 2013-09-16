@@ -3,6 +3,7 @@
 
 from random import randint
 from collections import Counter
+import sys, time
 
 class block:
 	
@@ -27,7 +28,7 @@ def encode(src, dist, size, perc): # --> []blocks
 	for i in range(int(len(chunks) * perc)):
 		index = randint(0, len(chunks)-1)
 		iblock = block([index], chunks[index])
-		for i in range(randint(0, dist)):
+		for i in range(randint(0, dist - 1)):
 			index = randint(0, len(chunks)-1)
 			iblock.parents.append(index)
 			iblock.content = xor(iblock.content, chunks[index])
@@ -39,17 +40,13 @@ def decode(blocks): # --> string
 
 	# Iterate over blocks until all are solved
 	found = {}
+	total = len(blocks)
 	while blocks:
 
-		print len(blocks)
 		b = blocks.pop(0)
 
-		# Broken case, should not exist
-		if len(b.parents) == 0:
-			pass
-
 		# If block is solved (i.e. one parent)
-		elif len(b.parents) == 1:
+		if len(b.parents) == 1:
 			found[b.parents[0]] = b.content
 		
 		# If block is not solved...
@@ -65,16 +62,24 @@ def decode(blocks): # --> string
 			b.parents = parents
 
 			# ... check if block is a subset of another
-			for c in blocks:
-				if not Counter(b.parents) - Counter(c.parents): # b is a subset of c
-					c.content = xor(b.content, c.content)
-					parents = c.parents
-					for i in b.parents:
-						parents.remove(i)
-					c.parents = parents
+			if False: # enable if stuck
+				for c in blocks:
+					if not Counter(b.parents) - Counter(c.parents): # b is a subset of c
+						c.content = xor(b.content, c.content)
+						parents = c.parents
+						for i in b.parents:
+							parents.remove(i)
+						c.parents = parents
 
-			blocks.append(b)
+			# Ensure block is still a valid child
+			if len(b.parents) > 0:
+				blocks.append(b)
 
+			n = int(float((total -len(blocks)) * 100) / total)
+			sys.stdout.write("\rCompiling %d%%" % n)
+			sys.stdout.flush()
+	print
+	
 	# Take dict found, and convert back to src string
 	result = ""
 	keys = found.keys()
@@ -95,9 +100,17 @@ def xor(s1, s2):
 	
 if __name__ == '__main__':
 
-	f = open("sample.txt", "r")
+	# Reading source data from file
+	n = "sample.jpg"
+	f = open(n, "r")
 	src = f.read()
 	f.close()
-	e = encode(src, 5, 64, 2)
+
+	# Encode and decode data
+	e = encode(src, 10, 1024, 2.0)
 	d = decode(e)
-	print d
+
+	# Saving compiled data to file
+	f = open("_" + n, "w")
+	f.write(d)
+	f.close()
