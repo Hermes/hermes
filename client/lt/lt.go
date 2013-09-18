@@ -6,6 +6,7 @@ import (
     "bytes"
 	"math/rand"
 	"time"
+	"os"
 )
 
 type Block struct {
@@ -29,7 +30,7 @@ func xor(s1 string, s2 string) string {
 }
 
 func random(min, max int) int {
-	rand.Seed(time.Now().Unix())
+	rand.Seed(int64(time.Now().Nanosecond()))
 	return rand.Intn((max + 1) - min) + min
 }
 
@@ -49,7 +50,7 @@ func Fountain(src io.Reader, dist int, size int, perc float32) []Block {
 	}
 	
 	// blocks = []
-	blocks := make([]Block, int(float32(len(chunks)) * perc))
+	blocks := []Block{}
 	
 	// for j in range(int(len(chunks) * perc)):
 	for i := 0; i < int(float32(len(chunks)) * perc); i++ {
@@ -68,26 +69,102 @@ func Fountain(src io.Reader, dist int, size int, perc float32) []Block {
 			index := random(0, len(chunks) - 1)
 
 			// 	b.parents.append(index)
-			parents[j + 1] = string(index)
+			parents = append(parents, string(index))
 
 			// 	b.content = xor(b.content, chunks[index])
 			data = xor(data, chunks[index])
 
 		}
 		// 	blocks.append(b)
-		blocks[i] = Block{parents, data}
+		blocks = append(blocks, Block{parents, data})
 	}
 
 	return blocks
 }
 
-// func DeFountain(blocks []Block) io.Reader {
-// 	return io.Reader
-// }
+func DeFountain(blocks []Block) string {
+	// found = {}
+	found := make(map[string]string)
+
+	// while blocks:
+	for len(blocks) > 0 {
+
+		// 	b = blocks.pop(0)
+		b := blocks[0]
+		blocks = blocks[1:len(blocks)]
+
+		// 	if len(b.parents) == 1:
+		if len(b.Parents) == 1 {
+			//	found[b.parents[0]] = b.content
+			found[b.Parents[0]] = b.Data
+		
+		// 	else:
+		} else {
+
+			// 	parents = []
+			parents := []string{}
+			// 	for parent in b.parents:
+			for i := 0; i < len(b.Parents); i++ {
+				// 	if found.has_key(parent):
+				if _, exists := found[b.Parents[i]]; exists {
+					// 	b.content = xor(b.content, found[parent])
+					b.Data = xor(b.Data, found[b.Parents[i]])
+				// 	else:
+				} else {
+					// 	parents.append(parent)
+					parents = append(parents, b.Parents[i])
+				}
+			}
+			// 	b.parents = parents
+			b.Parents = parents
+
+			// 	if True: # enable if stuck
+			if true {
+				// 	for c in blocks:
+				for i := 0; i < len(blocks); i++ {
+					// 	if not Counter(b.parents) - Counter(c.parents): # b is a subset of c
+						// 	c.content = xor(b.content, c.content)
+						// 	parents = c.parents
+						//  for i in b.parents:
+							//  parents.remove(i)
+						//  c.parents = parents
+				}
+			}
+
+			// 	if len(b.parents) > 0:
+			if len(b.Parents) > 0 {
+				// 	blocks.append(b)
+				blocks = append(blocks, b)
+			}
+		}	
+		fmt.Println(len(blocks))
+	}
+	
+
+	for i := 0; i < 100; i++ {
+        fmt.Println(found[string(i)])
+    }
+	return ""
+}
 
 func main() {
+
+	fi, err := os.Open("sample.txt")
+	if err != nil { panic(err) }
+	// close fi on exit and check for its returned error
+	defer func() {
+		if err := fi.Close(); err != nil {
+			panic(err)
+		}
+	}()
+
 	string1 := "WhatAmIDoingHere?"
 	string2 := "lakjsdf;lasjdfljd"
 
 	fmt.Println(xor(string1, string2))
+
+	e := Fountain(fi, 5, 1024, 10.0)
+	DeFountain(e)
+
+
 }
