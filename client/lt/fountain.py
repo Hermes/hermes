@@ -3,7 +3,7 @@
 
 from random import randint
 from collections import Counter
-import sys, time
+import sys
 
 class block:
 	
@@ -25,14 +25,15 @@ def encode(src, dist, size, perc): # --> []blocks
 
 	# Takes chunks and combines them into blocks
 	blocks = []
-	for i in range(int(len(chunks) * perc)):
+	for j in range(int(len(chunks) * perc)):
 		index = randint(0, len(chunks)-1)
 		iblock = block([index], chunks[index])
 		for i in range(randint(0, dist - 1)):
-			index = randint(0, len(chunks)-1)
+			index = randint(0, len(chunks) - 1)
 			iblock.parents.append(index)
 			iblock.content = xor(iblock.content, chunks[index])
 		blocks.append(iblock)
+		print str(j) + "/" + str(int(len(chunks) * perc))
 
 	return blocks
 	
@@ -62,7 +63,7 @@ def decode(blocks): # --> string
 			b.parents = parents
 
 			# ... check if block is a subset of another
-			if False: # enable if stuck
+			if True: # enable if stuck
 				for c in blocks:
 					if not Counter(b.parents) - Counter(c.parents): # b is a subset of c
 						c.content = xor(b.content, c.content)
@@ -75,9 +76,10 @@ def decode(blocks): # --> string
 			if len(b.parents) > 0:
 				blocks.append(b)
 
-			n = int(float((total -len(blocks)) * 100) / total)
-			sys.stdout.write("\rCompiling %d%%" % n)
-			sys.stdout.flush()
+		# n = int(float((total -len(blocks)) * 100) / total)
+		# sys.stdout.write("\rCompiling %d%%" % n)
+		# sys.stdout.flush()
+		print len(blocks)
 	print
 	
 	# Take dict found, and convert back to src string
@@ -101,13 +103,13 @@ def xor(s1, s2):
 if __name__ == '__main__':
 
 	# Reading source data from file
-	n = "sample.jpg"
+	n = "sample.txt"
 	f = open(n, "r")
 	src = f.read()
 	f.close()
 
 	# Encode and decode data
-	e = encode(src, 10, 1024, 2.0)
+	e = encode(src, 50, 8*1024, 0.8)
 	d = decode(e)
 
 	# Saving compiled data to file
