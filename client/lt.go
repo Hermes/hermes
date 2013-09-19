@@ -8,9 +8,13 @@ import (
 	"time"
 	"os"
 	"strings"
+	"math"
+	"encoding/hex"
+	"crypto/sha256"
 )
 
 type Block struct {
+	Id string
 	Parents []string
 	Data string
 }
@@ -54,116 +58,166 @@ func subset(s1, s2 []string) bool {
     return true
 }
 
+func prng(s string, k int, n int) []int {
+	// seed is a hex hash,
+	// k is degree of distribution
+	// n is total number of blocks
+
+	//convert seed hash to decimal
+	blocks := make([]int, k)
+	sBytes, _ := hex.DecodeString(s)
+	var seed int64
+	for _, element := range sBytes {
+		seed += int64(element)
+	}
+
+	r := rand.New(rand.NewSource(seed))
+	
+	for i := 0; i < k; i++ { // for number of combined blocks
+	
+		newItem := true
+
+		block := int(math.Trunc(r.Float64() * float64(n + 1)))
+		
+		for j := 0; j < k; j++ { // making sure block is not already in array
+			if blocks[j] == block {
+				newItem = false
+			}
+		}
+
+		if newItem && block <= n {
+			blocks[i] = block
+		} else {
+			i--
+		}
+		
+	}
+	return blocks
+}
+
+func ValidateBlocks() {
+	
+}
+
 func Fountain(src io.Reader, dist int, size int, perc float32) []Block {
 
+	// Convert io.Reader to string
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(src)
 	s := buf.String()
 
-	// chunks = []
-	chunks := make([]string, len(s) / size)
+	// Setting hash seed
+	id := s
 
-	// for i in range(len(src) / size):
+	// Chunking source string
+	// Still requires trunkation fix
+	chunks := make([]string, len(s) / size)
 	for i := 0; i < len(s) / size; i++ {
-		// 	chunks.append(src[i * size:(i * size) + size])
 		chunks[i] = s[i * size:(i * size) + size]
 	}
 	
-	// blocks = []
+	// Combining chunks into blocks
 	blocks := []Block{}
-	
-	// for j in range(int(len(chunks) * perc)):
 	for i := 0; i < int(float32(len(chunks)) * perc); i++ {
-		
-		// 	index = randint(0, len(chunks)-1)
-		index := random(0, len(chunks) - 1)
 
-		// 	b = block([index], chunks[index])
+		// Generate Id hash
+		h := sha256.New()
+		io.WriteString(h, id)
+		id = string(h.Sum(nil))
+		
+		// Randomly selects first block element
+		index := random(0, len(chunks) - 1)
 		parents := []string{string(index)}
 		data := chunks[index]
 		
-		// 	for i in range(randint(0, dist - 1)):
+		// Randomly selects subsequent elements
 		for j := 0; j < random(0, dist - 1); j++ {
-		
-			// 	index = randint(0, len(chunks) - 1)
 			index := random(0, len(chunks) - 1)
-
-			// 	b.parents.append(index)
 			parents = append(parents, string(index))
-
-			// 	b.content = xor(b.content, chunks[index])
 			data = xor(data, chunks[index])
-
 		}
-		// 	blocks.append(b)
-		blocks = append(blocks, Block{parents, data})
-	}
 
+		// Hash content and prepend hash to content
+
+		// Append block to resulting []Block
+		blocks = append(blocks, Block{id, parents, data})
+	}
 	return blocks
 }
 
 func DeFountain(blocks []Block) io.Reader {
-	// found = {}
+
+	// Create map of solved chunks
 	found := make(map[string]string)
 
-	// while blocks:
+	// Iterates while still unsolved blocks
 	for len(blocks) > 0 {
 
-		// 	b = blocks.pop(0)
+		fmt.Println(len(blocks))
+
+		// Pop first block from list
 		b := blocks[0]
 		blocks = blocks[1:len(blocks)]
 
-		// 	if len(b.parents) == 1:
+		// If solved, add to map of solved
 		if len(b.Parents) == 1 {
-			//	found[b.parents[0]] = b.content
 			found[b.Parents[0]] = b.Data
-		
-		// 	else:
+	
+		// Otherwise attempt to solve
 		} else {
 
-			// 	parents = []
+			// Iterate through parents of block
 			parents := []string{}
-			// 	for parent in b.parents:
 			for i := 0; i < len(b.Parents); i++ {
-				// 	if found.has_key(parent):
+
+				// If parent has been solved, XOR in and remove
 				if _, exists := found[b.Parents[i]]; exists {
-					// 	b.content = xor(b.content, found[parent])
 					b.Data = xor(b.Data, found[b.Parents[i]])
-				// 	else:
+				
+				// Otherwise append the parent back to block's parents
 				} else {
-					// 	parents.append(parent)
 					parents = append(parents, b.Parents[i])
 				}
 			}
-			// 	b.parents = parents
 			b.Parents = parents
 
-			// 	if True: # enable if stuck
+			// Complex resolution: check if block is a subset
+			// Still requires responsive switching for performance
 			if false {
-				// 	for c in blocks:
+
+				// Iterate back over []Block
 				for i := 0; i < len(blocks); i++ {
-					// 	if not Counter(b.parents) - Counter(c.parents): # b is a subset of c
+					
+					// If current block is a subset of another
 					if subset(b.Parents, blocks[i].Parents) {
-						// 	c.content = xor(b.content, c.content)
+
+						// XOR contents of blocks
 						blocks[i].Data = xor(b.Data, blocks[i].Data)
-						// 	parents = c.parents
+						
+						// Remove parents from the subset from superset
 						parents := blocks[i].Parents
-						//  for i in b.parents:
-							//  parents.remove(i)
-						//  c.parents = parents
+						for j := 0; j < len(b.Parents); j++ {
+							for k := 0; k < len(parents); k++ {
+								if b.Parents[j] == parents[k] {
+									copy(parents[k:], parents[k+1:]) 
+									parents = parents[:len(parents)-1] 
+									break
+								}
+							}
+						}
+						blocks[i].Parents = parents
 					}
 				}
 			}
 
-			// 	if len(b.parents) > 0:
+			// Ensures that block still has parents
 			if len(b.Parents) > 0 {
-				// 	blocks.append(b)
 				blocks = append(blocks, b)
 			}
 		}	
-		fmt.Println(len(blocks))
 	}
 	
+	// Converts map of solved elements back into io.Reader
 	index := 0
 	result := ""
 	for {
@@ -180,6 +234,10 @@ func DeFountain(blocks []Block) io.Reader {
 
 func main() {
 
+	fmt.Println(Prng("b", 5, 500))
+	fmt.Println(Prng("3", 5, 500))
+	// Bug: Numbers don't change with different seeds
+
 	filename := "sample.jpg"
 
 	// Load file into io.Reader
@@ -191,6 +249,7 @@ func main() {
 		}
 	}()
 
+	// Encodes and decodes file for testing
 	e := Fountain(fi, 5, 1024 / 4, 5)
 	d := DeFountain(e)
 
