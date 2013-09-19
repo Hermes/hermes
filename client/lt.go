@@ -22,7 +22,7 @@ func xor(s1, s2 string) string {
 		return ""
 	}
 	
-	// XOR strings together
+	// Bitwise XOR strings together
 	result := make([]byte, len(s1))
 	for i := 0; i < len(s1); i++ {
 		result[i] = s1[i] ^ s2[i]
@@ -33,6 +33,25 @@ func xor(s1, s2 string) string {
 func random(min, max int) int {
 	rand.Seed(int64(time.Now().Nanosecond()))
 	return rand.Intn((max + 1) - min) + min
+}
+
+func subset(s1, s2 []string) bool {
+	set := make(map[string]int)
+	for _, value := range s2 {
+		set[value] += 1
+	}
+
+    for _, value := range s1 {
+        if count, found := set[value]; !found {
+            return false
+        } else if count < 1 {
+            return false
+        } else {
+            set[value] = count - 1
+        }
+    }
+
+    return true
 }
 
 func Fountain(src io.Reader, dist int, size int, perc float32) []Block {
@@ -120,15 +139,19 @@ func DeFountain(blocks []Block) io.Reader {
 			b.Parents = parents
 
 			// 	if True: # enable if stuck
-			if true {
+			if false {
 				// 	for c in blocks:
 				for i := 0; i < len(blocks); i++ {
 					// 	if not Counter(b.parents) - Counter(c.parents): # b is a subset of c
+					if subset(b.Parents, blocks[i].Parents) {
 						// 	c.content = xor(b.content, c.content)
+						blocks[i].Data = xor(b.Data, blocks[i].Data)
 						// 	parents = c.parents
+						parents := blocks[i].Parents
 						//  for i in b.parents:
 							//  parents.remove(i)
 						//  c.parents = parents
+					}
 				}
 			}
 
@@ -157,31 +180,27 @@ func DeFountain(blocks []Block) io.Reader {
 
 func main() {
 
-	filename := "sample.mp4"
+	filename := "sample.jpg"
 
+	// Load file into io.Reader
 	fi, err := os.Open(filename)
 	if err != nil { panic(err) }
-	// close fi on exit and check for its returned error
 	defer func() {
 		if err := fi.Close(); err != nil {
 			panic(err)
 		}
 	}()
 
-	e := Fountain(fi, 5, 1024 * 1024 / 4, 10)
+	e := Fountain(fi, 5, 1024 / 4, 5)
 	d := DeFountain(e)
 
-	// open output file
+	// Save io.Reader to file
     fo, err := os.Create("_" + filename)
     if err != nil { panic(err) }
-    // close fo on exit and check for its returned error
     defer func() {
         if err := fo.Close(); err != nil {
             panic(err)
         }
     }()
-
     io.Copy(fo, d)
-
-
 }
