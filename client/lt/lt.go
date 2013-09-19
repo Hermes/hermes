@@ -7,6 +7,7 @@ import (
 	"math/rand"
 	"time"
 	"os"
+	"strings"
 )
 
 type Block struct {
@@ -14,7 +15,7 @@ type Block struct {
 	Data string
 }
 
-func xor(s1 string, s2 string) string {
+func xor(s1, s2 string) string {
 	
 	// Ensure strings are same length
 	if len(s1) != len(s2) {
@@ -82,7 +83,7 @@ func Fountain(src io.Reader, dist int, size int, perc float32) []Block {
 	return blocks
 }
 
-func DeFountain(blocks []Block) string {
+func DeFountain(blocks []Block) io.Reader {
 	// found = {}
 	found := make(map[string]string)
 
@@ -140,16 +141,25 @@ func DeFountain(blocks []Block) string {
 		fmt.Println(len(blocks))
 	}
 	
-
-	for i := 0; i < 100; i++ {
-        fmt.Println(found[string(i)])
+	index := 0
+	result := ""
+	for {
+		value, exists := found[string(index)];
+        if !exists {
+        	break
+        } else {
+        	result += value
+        	index++
+        }
     }
-	return ""
+	return strings.NewReader(string(result))
 }
 
 func main() {
 
-	fi, err := os.Open("sample.txt")
+	filename := "sample.mp4"
+
+	fi, err := os.Open(filename)
 	if err != nil { panic(err) }
 	// close fi on exit and check for its returned error
 	defer func() {
@@ -158,13 +168,20 @@ func main() {
 		}
 	}()
 
-	string1 := "WhatAmIDoingHere?"
-	string2 := "lakjsdf;lasjdfljd"
+	e := Fountain(fi, 5, 1024 * 1024 / 4, 10)
+	d := DeFountain(e)
 
-	fmt.Println(xor(string1, string2))
+	// open output file
+    fo, err := os.Create("_" + filename)
+    if err != nil { panic(err) }
+    // close fo on exit and check for its returned error
+    defer func() {
+        if err := fo.Close(); err != nil {
+            panic(err)
+        }
+    }()
 
-	e := Fountain(fi, 5, 1024, 10.0)
-	DeFountain(e)
+    io.Copy(fo, d)
 
 
 }

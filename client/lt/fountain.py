@@ -109,7 +109,7 @@ if __name__ == '__main__':
 	f.close()
 
 	# Encode and decode data
-	e = encode(src, 50, 8*1024, 0.8)
+	e = encode(src, 10, 1024, 10)
 	d = decode(e)
 
 	# Saving compiled data to file
