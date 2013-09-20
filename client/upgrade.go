@@ -12,9 +12,9 @@ import (
 )
 
 type ClientVersion struct {
-	Version 	float32
-	Build 		int
-	Checksum 	string
+	Version 	float32 	// current client version
+	Build 		int 		// current client build
+	Checksum 	string 		// checksum of client version
 }
 
 func checkVersion(o ClientVersion) (ClientVersion, bool) {
