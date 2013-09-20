@@ -130,13 +130,18 @@ func Fountain(src io.Reader, dist int, size int, perc float32) []Block {
 	id := s
 
 	// Chunking source string
-	// Still requires trunkation fix
 	chunks := make([]string, len(s) / size)
 	for i := 0; i < len(s) / size; i++ {
 		chunks[i] = s[i * size:(i * size) + size]
 	}
 
-	// Padding: fmt.Println(string([]byte{255}))
+	// Padding last chunk
+	remainder := s[(len(s) - 1) - (len(s) % size):]
+	remainder = remainder + string([]byte{1})
+	for (size - len(remainder)) > 0{
+		remainder = remainder + string([]byte{0})
+	}
+	chunks = append(chunks, remainder)
 	
 	// Combining chunks into blocks
 	blocks := []Block{}
@@ -171,7 +176,7 @@ func Fountain(src io.Reader, dist int, size int, perc float32) []Block {
 // and recompiles the blocks into the source file as an io.Reader. It
 // optionally allows for dynamic reconstruction that has a higher success
 // rate, but can increase overall runtime.
-func DeFountain(blocks []Block, dyn bool) io.Reader {
+func DeFountain(blocks []Block, dynamic bool) io.Reader {
 
 	// Create map of solved chunks
 	found := make(map[string]string)
@@ -215,7 +220,7 @@ func DeFountain(blocks []Block, dyn bool) io.Reader {
 			b.Parents = parents
 
 			// Complex resolution: check if block is a subset
-			if failed > 2 * len(blocks) && dyn {
+			if failed > 2 * len(blocks) && dynamic {
 
 				// Iterate back over []Block
 				for i := 0; i < len(blocks); i++ {
@@ -249,9 +254,10 @@ func DeFountain(blocks []Block, dyn bool) io.Reader {
 			}
 		}
 
-		if failed > 3 * len(blocks) {
-			return strings.NewReader("")
-		}
+		// If decoding fails
+		// if failed > 3 * len(blocks) {
+		// 	return strings.NewReader("")
+		// }
 
 	}
 	
@@ -267,6 +273,15 @@ func DeFountain(blocks []Block, dyn bool) io.Reader {
 			index++
 		}
 	}
+
+	// Remove padding
+	for i := len(result) - 1; i > 0; i-- {
+		if string(result[i]) == string([]byte{1}) {
+			result = result[:i - 1]
+			break
+		}
+	}
+
 	return strings.NewReader(string(result))
 }
 
@@ -283,29 +298,9 @@ func bench(filename string, dist int, size int, perc float32) bool {
 		}
 	}()
 
-	// Convert io.Reader to string
-	buf := new(bytes.Buffer)
-	buf.ReadFrom(fi)
-	s := buf.String()
-
-	// Generate Id hash
-	h := sha256.New()
-	io.WriteString(h, s)
-	src_hash := h.Sum(nil)
-
 	// Encodes and decodes file for benching
 	e := Fountain(fi, dist, size, perc)
-	d := DeFountain(e, true)
-
-	// Convert io.Reader to string
-	buf = new(bytes.Buffer)
-	buf.ReadFrom(d)
-	s = buf.String()
-
-	// Generate Id hash
-	h = sha256.New()
-	io.WriteString(h, s)
-	res_hash := h.Sum(nil)
+	d := DeFountain(e, false)
 
 	// Save io.Reader to file
 	fo, err := os.Create("_" + filename)
@@ -316,16 +311,16 @@ func bench(filename string, dist int, size int, perc float32) bool {
 		}
 	}()
 	io.Copy(fo, d)
-	
-	return true
 
 	// Check if failed
 	// if io.Reader == ""
+	// return false
 
 	// Check if hashes match
-	// if string(src_hash) == string(res_hash) {}
+	// if string(src_hash) != string(res_hash) {}
+	// return false
 	
-	//return false
+	return true
 }
 
 func main() {
