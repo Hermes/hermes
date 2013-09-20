@@ -17,6 +17,7 @@ type Block struct {
 	Id string 			// unique Id of block
 	Parents []string 	// slice of parent chunks
 	Data string 		// encoded source data
+	Hash string 		// signed content hash
 }
 
 // xor takes two strings of equal length and performs a bitwise XOR on them.
@@ -111,7 +112,19 @@ func prng(s string, k int, n int) []int {
 // ValidateBlocks takes a []Block of remotely pulled blocks from the network
 // and compares it to a block chain generated list. Returns an empty list if
 // all blocks are valid, or a []Block of corrupt blocks otherwise.
-func ValidateBlocks(blocks []Block) []Block {
+func ValidateBlocks(blocks []Block, signature string) []Block {
+
+	for i := 0; i < len(blocks) - 1; i++ {
+
+		// Generating signed data hash
+		h := sha256.New()
+		io.WriteString(h, blocks[i].Data + signature)
+		new_hash := string(h.Sum(nil))
+
+		if new_hash != blocks[i].Hash {
+			fmt.Println("Invalid block: " + hex.EncodeToString([]byte(blocks[i].Id)))
+		}
+	}
 	return []Block{}
 }
 
@@ -119,7 +132,9 @@ func ValidateBlocks(blocks []Block) []Block {
 // Transform fountain code encoding algorithm over the file. It uses degree
 // of distribution, chunk size, and a percent of chunks to generate into
 // blocks. 
-func Fountain(src io.Reader, dist int, size int, perc float32) []Block {
+func Fountain(src io.Reader, dist int, size int, perc float32, signature string) []Block {
+
+	// Still requires signature for signing blocks
 
 	// Convert io.Reader to string
 	buf := new(bytes.Buffer)
@@ -165,9 +180,12 @@ func Fountain(src io.Reader, dist int, size int, perc float32) []Block {
 		}
 
 		// Hash content and prepend hash to content
+		h = sha256.New()
+		io.WriteString(h, data + signature)
+		shash := string(h.Sum(nil))
 
 		// Append block to resulting []Block
-		blocks = append(blocks, Block{id, parents, data})
+		blocks = append(blocks, Block{id, parents, data, shash})
 	}
 	return blocks
 }
@@ -176,12 +194,12 @@ func Fountain(src io.Reader, dist int, size int, perc float32) []Block {
 // and recompiles the blocks into the source file as an io.Reader. It
 // optionally allows for dynamic reconstruction that has a higher success
 // rate, but can increase overall runtime.
-func DeFountain(blocks []Block, dynamic bool) io.Reader {
+func DeFountain(blocks []Block, signature string, dynamic bool) io.Reader {
 
 	// Create map of solved chunks
 	found := make(map[string]string)
 
-	// 
+	// Failed attempt counter
 	failed := 0
 
 	// Iterates while still unsolved blocks
@@ -190,7 +208,7 @@ func DeFountain(blocks []Block, dynamic bool) io.Reader {
 		// Increments count of fails
 		failed++
 
-		fmt.Println(len(blocks))
+		//fmt.Println(len(blocks))
 
 		// Pop first block from list
 		b := blocks[0]
@@ -299,8 +317,10 @@ func bench(filename string, dist int, size int, perc float32) bool {
 	}()
 
 	// Encodes and decodes file for benching
-	e := Fountain(fi, dist, size, perc)
-	d := DeFountain(e, false)
+	signature := ""
+	e := Fountain(fi, dist, size, perc, signature)
+	ValidateBlocks(e, signature)
+	d := DeFountain(e, signature, false)
 
 	// Save io.Reader to file
 	fo, err := os.Create("_" + filename)
@@ -325,6 +345,6 @@ func bench(filename string, dist int, size int, perc float32) bool {
 
 func main() {
 
-	bench("sample.jpg", 5, 1024/4, 10)
+	bench("sample.jpg", 5, 1024/4, 5)
 
 }
