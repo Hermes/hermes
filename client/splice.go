@@ -23,8 +23,8 @@ func randomString(l int) string {
 	return string(bytes)
 }
 
-//Split: Splits a 'file' into blocks of size 'block_size' and outputs them into
-//The directory given by 'filedir'
+// Splits a 'file' into blocks of size 'block_size' and outputs them into
+// The directory given by 'filedir'
 func Split(file io.Reader, block_size int, filename string) string {
 	final_files := make([]string, 0)
 	buf := make([]byte, block_size)
@@ -76,7 +76,7 @@ func Split(file io.Reader, block_size int, filename string) string {
 	return filedir
 }
 
-//Join: Takes a list of 'files' and joins them back together according to it's order
+// Takes a list of 'files' and joins them back together according to it's order
 func Join(filedir string) io.Reader {
 	filedir = path.Join(os.TempDir(), filedir)
 	dir, _ := os.Open(filedir)
