@@ -1,4 +1,4 @@
-package main
+package client
 
 import (
 	"fmt"
@@ -341,10 +341,4 @@ func bench(filename string, dist int, size int, perc float32) bool {
 	// return false
 	
 	return true
-}
-
-func main() {
-
-	bench("sample.jpg", 5, 1024/4, 5)
-
 }
