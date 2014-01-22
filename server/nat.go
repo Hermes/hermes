@@ -1,3 +1,5 @@
+// Copyright (c) 2010 Jack Palevich. All rights reserved.
+
 package main
 
 import (
