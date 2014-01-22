@@ -8,10 +8,10 @@ import (
 const (
 	RECV_BUF_LEN = 1024
 )
+
 func main() {
-	println("Starting the server")
  
-	listener, err := net.Listen("tcp", "0.0.0.0:6666")
+	listener, err := net.Listen("tcp", "0.0.0.0:4376")
 	if err != nil {
 		println("error listening:", err.Error())
 		os.Exit(1)

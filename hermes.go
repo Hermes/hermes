@@ -3,54 +3,54 @@
 package main
 
 import (
-	"hermes/client"
-	"hermes/server"
-	"os"
-	"io"
+	"bytes"
 	"flag"
 	"fmt"
-	"bytes"
+	"hermes/client"
+	"hermes/server"
+	"io"
+	"os"
 )
 
 var verbose bool
 
 const (
-	hermesVersion	= 0.1
-	hermesBuild		= 1001
-	blockSize		= 1048576
+	hermesVersion = 0.1
+	hermesBuild   = 1001
+	blockSize     = 1048576
 )
 
 type vault struct {
 	Key string
 }
 
-func generate(file string) {//, pass string) {
+func generate(file string) { //, pass string) {
 	creds := server.NewCredentials()
-    f, err := os.Create(file)
-    defer f.Close()
-    if err != nil {
-        fmt.Println(err)
-    }
-    _, err = io.WriteString(f, creds.String())
-    if err != nil {
-        fmt.Println(err)
-    }
+	f, err := os.Create(file)
+	defer f.Close()
+	if err != nil {
+		fmt.Println(err)
+	}
+	_, err = io.WriteString(f, creds.String())
+	if err != nil {
+		fmt.Println(err)
+	}
 	fmt.Println("Keep key secret, and safe.")
 	fmt.Println("Vault Key: " + creds.String())
 }
 
-func load(file string) {//, pass string) {
+func load(file string) { //, pass string) {
 	vprint("Reading vault file")
-    f, _ := os.Open(file)
+	f, _ := os.Open(file)
 	defer f.Close()
 	vprint("Writing to vault.dat")
 	fo, err := os.Create("vault.dat")
-    defer fo.Close()
-    if err != nil {
-        fmt.Println(err)
-    } else {
-    	io.Copy(fo, f)
-    }
+	defer fo.Close()
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		io.Copy(fo, f)
+	}
 }
 
 func (v vault) update() {
@@ -93,7 +93,7 @@ func lock() {
 	}
 }
 
-func vprint (msg string) {
+func vprint(msg string) {
 	if verbose {
 		fmt.Println(msg)
 	}
@@ -132,8 +132,8 @@ func main() {
 		// Loading vault.dat
 		vaultfile, err := os.Open("vault.dat")
 		if err != nil && flags[0] != "generate" && flags[0] != "load" && flags[0] != "upgrade" {
-	        fmt.Println("Failed to load vault")
-	        return
+			fmt.Println("Failed to load vault")
+			return
 		} else if err == nil {
 			defer vaultfile.Close()
 			buf := new(bytes.Buffer)
@@ -143,15 +143,23 @@ func main() {
 		}
 
 		// Arguement cases
-		switch flags[0] { 
-			case "generate": generate(flags[1])//, flags[2])
-			case "load": load(flags[1]) //, flags[2])
-			case "lock": lock()
-			case "upgrade": client.Upgrade(hermesVersion, hermesBuild)
-			case "update": v.update()
-			case "pull": v.pull(flags[1])
-			case "push": v.push(flags[1])
-			default: fmt.Println("Error: Invalid Flags")
+		switch flags[0] {
+		case "generate":
+			generate(flags[1]) //, flags[2])
+		case "load":
+			load(flags[1]) //, flags[2])
+		case "lock":
+			lock()
+		case "upgrade":
+			client.Upgrade(hermesVersion, hermesBuild)
+		case "update":
+			v.update()
+		case "pull":
+			v.pull(flags[1])
+		case "push":
+			v.push(flags[1])
+		default:
+			fmt.Println("Error: Invalid Flags")
 		}
 
 	} else {

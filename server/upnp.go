@@ -1,3 +1,5 @@
+// Copyright (c) 2010 Jack Palevich. All rights reserved.
+
 package main
 
 // Just enough UPnP to be able to forward ports
