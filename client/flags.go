@@ -5,7 +5,7 @@ import (
 )
 
 func ValidateFlags(flags []string) bool {
-	allFlags := []string{"generate", "update", "pull", "push", "lock", "load", "upgrade"}
+	allFlags := []string{"generate", "update", "pull", "push", "lock", "load"}
 
 	// Validating number of flags
 	if len(flags) == 0 || len(flags) >=  3 {

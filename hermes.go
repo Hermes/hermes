@@ -99,6 +99,23 @@ func vprint (msg string) {
 	}
 }
 
+func usage(){
+	fmt.Println("Usage: hermes [-v] command\n")
+	fmt.Println("Hermes is an open-source distributed unlimited redundant backup solution\n")
+	fmt.Println("Commands: <> required / () optional")
+	fmt.Println("  upgrade\t\t\t\tUpgrades hermes client to latest version")
+	fmt.Println("  generate <file> (password)\t\tGenerates new vault file")
+	fmt.Println("  load <file/address> (password)\tLoads vault as active")
+	fmt.Println("  update\t\t\t\tUpdates the vault.dat manifest")
+	fmt.Println("  push <file/folder>\t\t\tPushes file to network")
+	fmt.Println("  pull <file/folder>\t\t\tPulls file from network")
+	fmt.Println("  lock\t\t\t\t\tLocks vault and deletes vault.dat\n")
+	fmt.Println("Options:")
+	fmt.Println("  -h  This help text.")
+	fmt.Println("  -v  Show verbose feedback\n");
+	fmt.Println("Report bugs at github.com/olanmatt/hermes");
+}
+
 func main() {
 
 	// Vault instantiation
@@ -113,15 +130,7 @@ func main() {
 
 	// Help handler
 	if help {
-		fmt.Println("hermes - An open-source distributed unlimited redundant backup solution")
-		fmt.Println("<> required / () optional\n")
-		fmt.Println("upgrade\t\t\t\tUpgrades hermes client to latest version")
-		fmt.Println("generate <file> (password)\tGenerates new vault file")
-		fmt.Println("load <file/address> (password)\tLoads vault as active")
-		fmt.Println("update\t\t\t\tUpdates the vault.dat manifest")
-		fmt.Println("push <file/folder>\t\tPushes file to network")
-		fmt.Println("pull <file/folder>\t\tPulls file from network")
-		fmt.Println("lock\t\t\t\tLocks vault and deletes vault.dat")
+		usage()
 		return
 	}
 
@@ -147,7 +156,6 @@ func main() {
 			case "generate": generate(flags[1])//, flags[2])
 			case "load": load(flags[1]) //, flags[2])
 			case "lock": lock()
-			case "upgrade": client.Upgrade(hermesVersion, hermesBuild)
 			case "update": v.update()
 			case "pull": v.pull(flags[1])
 			case "push": v.push(flags[1])
@@ -155,7 +163,9 @@ func main() {
 		}
 
 	} else {
-		fmt.Println("Error: Invalid Flags")
+		// Print usage message
+		usage()
+		return
 	}
 
 }
