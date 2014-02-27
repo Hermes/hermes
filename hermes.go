@@ -3,8 +3,8 @@
 package main
 
 import (
-	"hermes/client"
-	"hermes/server"
+	"github.com/olanmatt/hermes/client"
+	"github.com/olanmatt/hermes/server"
 	"os"
 	"io"
 	"flag"

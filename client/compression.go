@@ -1,5 +1,3 @@
-// Requires https://code.google.com/p/lzma/
-
 package client
 
 import (
