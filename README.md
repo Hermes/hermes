@@ -38,6 +38,6 @@ Pull file from network
 
 ## Contributors
 
-[eud0xus](https://github.com/eud0xus)  
+[John-Alan Simmons](https://github.com/jsimnz)  
 [William Mak](https://github.com/wmak)  
 [AnthonyKalsatos](https://github.com/AnthonyKalsatos)  
