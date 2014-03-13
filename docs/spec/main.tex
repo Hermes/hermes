@@ -1,0 +1,112 @@
+\documentclass[journal]{IEEEtran}
+
+\begin{document}
+\title{Encrypted Distributed Data Storage\\with Regenerative Blocks}
+
+\author{
+        Matthew~Olan, %~\IEEEmembership{Member,~IEEE,}
+        John-Alan~Simmons,
+        and~William~Mak
+}
+
+\markboth{Journal of \LaTeX\ Class Files,~Vol.~6, No.~1, January~2013}%
+{Olan \MakeLowercase{\textit{et al.}}: Bare Demo of IEEEtran.cls for Journals}
+
+% make the title area
+\maketitle
+
+\begin{abstract}
+Hedgehogs have been a large issue within the Pleasantville community for the last six months. Attempts to fight this problem have been met with varying levels of success. Dr. Woofer’s gigantic vacuum strategy was a marked failure, while local inventor Steve Tyskiewicz’s method of putting the beasts in cages has shown a little more promise. Other smaller initiatives, such as loading the rodents into vans and dumping them in neighboring Danville, also give us some hope. In order to defeat this problem, though, we need concrete work—and lots of action from the community. Other towns like Jerryville prove this.
+\end{abstract}
+
+\IEEEpeerreviewmaketitle
+
+\section{Introduction}
+\IEEEPARstart{T}{his} demo file is intended to serve as a ``starter file'' for IEEE journal papers produced under \LaTeX\ using IEEEtran.cls version 1.7 and later. I wish you the best of success.
+
+\section{Non-Network Dependent System}
+
+\subsection{Source File Encryption}
+Encryption is Advanced Encryption Standard with Cipher-Block Chaining (AES-CBC). This mode of AES works such that,\\
+
+$C_i = E_k(P_i \oplus{} C_{i-1}), C_0 = IV$ (Encryption)\\
+$￼P_i = D_k(C_i) \oplus{} C_{i-1}, C_0 = IV$ (Decryption)\\
+
+￼This is to prevent data blocks from being independently decrypted with malicious intent. This also does not allow for partial decryption of user data, so if even a single data block is lost, none of the original data can be recovered. This problem will be addressed by Fountain Codes in section 1.5.
+
+\subsection{Source File Compression}
+Compression is Lempel-Ziv-Markov Chain Algorithm (LZMA). This was chosen for its high compression ratio to time.
+
+\subsection{Dynamic Source File Partitioning}
+The source file is partitions into chunks such that,\\
+
+$C_i = S_{(i \times{} size)} ... S_{(i \times{} size + size)}, 0 \le i \le \lceil{\frac{\left\vert{S}\right\vert}{size}}\rceil$ \\
+
+
+This causes and issue if length(source) mod size =/= 0. To resolve this, padding is used loosely following ISO/IEC 7816-4. User data is followed by a byte valued ‘01’, followed by zero bytes. Padding is always used to ensure user data following the same pattern does not get truncated.
+
+\subsection{Fountain Codes}
+... uses a PRNG (1.5) so that manifests do not need to be used.
+
+\subsection{Pseudo-random Number Generators}
+degree of distribution, d, is dictated by the network (2.2)... number of chunks in a block, n, is $1 \le n \le d$
+number of blocks is such that the combined number of bytes is $\le$ original number of bytes in source file\
+Parents: $x_i \in P_i \iff x_i \notin P_{i-1}$
+
+\subsection{Block Nomenclature}
+The resulting blocks from the fountain code algorithm are named such that,\\
+
+$N_i = H(N_{i-1}), N_0 = H(B)$\\
+
+For the sake of checking file validity the first 32bytes of a block are a SHA256 checksum of the file such that,\\
+
+$h_i = H(b_i + S)$
+
+
+\section{Network Dependent System}
+
+\subsection{Network Coding}
+
+\subsection{Degree of distribution}
+
+\subsection{Distributed networks and DHTs}
+
+\subsection{Network algorithms (EMAs, ...)}
+
+\section{Conclusion}
+The conclusion goes here.
+
+
+\appendices
+\section{Proof of the First Zonklar Equation}
+Appendix one text goes here.
+
+\section{}
+Appendix two text goes here.
+
+\section*{Acknowledgment}
+
+The authors would like to thank...
+
+
+% Can use something like this to put references on a page
+% by themselves when using endfloat and the captionsoff option.
+\ifCLASSOPTIONcaptionsoff
+  \newpage
+\fi
+
+\begin{thebibliography}{1}
+
+\bibitem{IEEEhowto:kopka}
+H.~Kopka and P.~W. Daly, \emph{A Guide to \LaTeX}, 3rd~ed.\hskip 1em plus
+  0.5em minus 0.4em\relax Harlow, England: Addison-Wesley, 1999.
+
+%http://www.bms.bc.ca/resources/library/pdf/GuidelinesScientificPapers.pdf
+%http://www.inference.phy.cam.ac.uk/oghm2/files/fountain-draft.pdf
+%http://tools.ietf.org/html/rfc6330
+
+\end{thebibliography}
+
+\end{document}
+
+
