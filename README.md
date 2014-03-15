@@ -35,9 +35,3 @@ Pull file from network
 
     hermes pull <file>
 
-
-## Contributors
-
-[John-Alan Simmons](https://github.com/jsimnz)  
-[William Mak](https://github.com/wmak)  
-[AnthonyKalsatos](https://github.com/AnthonyKalsatos)  
