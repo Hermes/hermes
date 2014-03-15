@@ -83,13 +83,13 @@ $S_i = H(P + K_{private})$
 Once the data has been processed by the preprocessor, it is then inserted into the network through the node's peers.
 
 \subsection{Peer Discovery} % Taken from BitTorrent Sync
-Multiple methods for peer discovery are used for different client connection capabilities. Local peer discovery will discover all peers inside local network by sending broadcast packets. If there are peers within the same network they respond to the broadcast message and connect. Peer exchange (PEX) will discover new peers after two peers are connected. The peers will exchange information about the other peers they know. Known hosts can also be saved with a static ip:port, so when attempting to reconnect to the network, known hosts are attempted first. A Distributed Hash Table discussed later in the section is used to distribute information about itself and obtain the information about other peers. The information is sent in the form of $K_{public}$:ip:port to DHT to announce itself and will get a list of peers. Tracker servers can be used to facilitate peer discovery. The tracker server sees the combination of $K_{public}$:ip:port and helps peers connect directly. The tracker also acts like a STUN server and can help do a NAT traversal for peers so that they can establish a direct connection even behind a NAT.
+The underlying Chord DHT only requires knowledge of a single node in the network to be able to connect and join. A similar method to that of the Bitcoin crpytocurrency is implemented for peer discovery. Using SeedNodes one can register several known and trusted peers IP Address established in the network to several domain names using the DNS system. This allows a new node to query the DNS of the specified domain (ie. dnsseed.hermesproject.org) and return a list of connected nodes. Local network discovery will work in tandem for performance reasons since connections are faster in a LAN. A broadcast message can be sent through the subnet to identity potential peers. The SeedNodes also have the potential to act as STUN servers to allow peers behind NATs without UPNP directly communicate.
+
+% \subsection{Distributed networks and DHTs}
 
 % \subsection{Network Coding}
 
 % \subsection{Degree of distribution}
-
-% \subsection{Distributed networks and DHTs}
 
 % \subsection{Network algorithms (EMAs, ...)}
 
@@ -124,6 +124,7 @@ Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor 
 %http://www.inference.phy.cam.ac.uk/oghm2/files/fountain-draft.pdf
 %http://tools.ietf.org/html/rfc6330
 %http://users.ece.utexas.edu/~dimakis/RC_Journal.pdf
+%https://bitcoin.org/en/
 
 %\end{thebibliography}
 
