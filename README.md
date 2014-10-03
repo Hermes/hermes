@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/Hermes/hermes.png?label=ready&title=Ready)](https://waffle.io/Hermes/hermes)
 Hermes
 ======
 
